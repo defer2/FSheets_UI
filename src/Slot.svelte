@@ -1,48 +1,40 @@
 <script>
-    import Task from './Task.svelte'
+    import Subslot from './Subslot.svelte'
     import { createEventDispatcher } from 'svelte'
     const dispatch = createEventDispatcher();
 
-
     export let hour;
-    export let tasks;
+    export let subslots;
     
-
-
     function onDrop(event,slotId) {
         event.preventDefault();
 
         if(slotId){
             const id = event.dataTransfer.getData('text');
-            const taskElement = document.getElementById(id);
+            const subslotElement = document.getElementById(id);
 
-            const taskName = taskElement.dataset.name;
-            const taskId = taskElement.dataset.id;
-            const taskColor = taskElement.dataset.color;
+            const subslotName = subslotElement.dataset.name;
+            const subslotId = subslotElement.dataset.id;
+            const subslotColor = subslotElement.dataset.color;
 
-            // const dropzone = event.target;
-            // dropzone.appendChild(draggableElement);
-            // console.log('dropped '+taskId+' a '+slotId);
-            // console.log('Event taskAdded triggered '+taskId)
-
-            dispatch('taskAdded', {
-                taskId: taskId,
-                taskName: taskName,
-                taskColor: taskColor,
+            dispatch('subslotAdded', {
+                subslotId: subslotId,
+                subslotName: subslotName,
+                subslotColor: subslotColor,
                 slotId: slotId
             });
         }
     }
 
-    const handleTaskDragStart = () => {dispatch('taskDragStart', {});};
-    const handleTaskDragEnd = () => {dispatch('taskDragEnd', {});};
+    const handlesubslotDragStart = () => {dispatch('subslotDragStart', {});};
+    const handlesubslotDragEnd = () => {dispatch('subslotDragEnd', {});};
 
-    const handleRemoveTaskTimesheet = (e) => {
-        let taskId = e.detail.taskId;
+    const handleRemoveSubslotTimesheet = (e) => {
+        let subslotId = e.detail.subslotId;
         let slotId = e.detail.slotId;
   
-        dispatch('removeTaskTimesheet', {
-            taskId: taskId,
+        dispatch('removeSubslotTimesheet', {
+            subslotId: subslotId,
             slotId: slotId
         });
                 
@@ -66,6 +58,7 @@
         text-align: left;
         min-height: 30px;
         border-bottom: 0.15em rgb(238, 238, 238) solid;
+        width:100%;
 	}
 
 
@@ -85,11 +78,11 @@
 <div>
     <div class="slot" id="slot-{hour}" ondragover="return false;" on:drop={event => onDrop(event,hour)}>
         <div class="hour"><h5>{hour}</h5></div>
-        <div class="tasks">
-            {#each tasks as task}
-                <div class="slot-task">
-                    <Task on:removeTaskTimesheetForSlot="{handleRemoveTaskTimesheet}" on:taskDragStart={handleTaskDragStart} on:taskDragEnd={handleTaskDragEnd}
-                        taskName={task.name} projectColor="{task.color}" taskId="{task.id}" slotId="{hour}"/>
+        <div class="subslots">
+            {#each subslots as subslot}
+                <div class="slot-subslot">
+                    <Subslot on:removesubslotTimesheetForSlot="{handleRemoveSubslotTimesheet}" on:subslotDragStart={handlesubslotDragStart} on:subslotDragEnd={handlesubslotDragEnd}
+                        subslotName={subslot.name} projectColor="{subslot.color}" subslotId="{subslot.id}" slotId="{hour}"/>
                 </div>
             {/each}
     </div>

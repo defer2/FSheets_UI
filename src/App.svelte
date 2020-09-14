@@ -20,6 +20,9 @@
 
 
 <style>
+	main {
+		background-color: rgb(243, 240, 240);
+	}
 	content {
 		display: grid;
 		grid-template-columns: 55% 45%;

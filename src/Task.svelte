@@ -2,20 +2,13 @@
     import Checkbox from "smelte/src/components/Checkbox";
     import TextField from "smelte/src/components/Textfield";
     import Button from "smelte/src/components/Button";
-
-
-    import { createEventDispatcher } from 'svelte'
-import { element } from "svelte/internal";
-import Todolist from "./Todolist.svelte";
+    import { createEventDispatcher } from 'svelte';
 
     export let taskName;
-    export let isTodoList;
     export let taskId;
     export let projectColor;
-    export let slotId;
 
     /*Functions*/
-
     let taskDone = false;
     let taskEditable = false;
     let draggable = true;
@@ -35,7 +28,7 @@ import Todolist from "./Todolist.svelte";
 
         try{
             let buttonId=e.target.id;
-            let parentDivId=buttonId.replace('btn-edit-','').replace('txt-','')+'-'+isTodoList;
+            let parentDivId=buttonId.replace('btn-edit-','').replace('txt-','');
             let txtId=buttonId.replace('btn-edit-','txt-');
             
             let parentDiv = document.getElementById(parentDivId);      
@@ -77,32 +70,6 @@ import Todolist from "./Todolist.svelte";
 				}
 			});
 
-    };
-    
-    const removeTaskTimesheet = (e) => {
-        let taskId = document.getElementById(e.target.id).getAttribute('data-taskid');
-        let slotId = document.getElementById(e.target.id).getAttribute('data-slotid');
-    
-        dispatch('removeTaskTimesheetForSlot', {
-            taskId: taskId,
-            slotId: slotId
-        });
-    };
-
-    const getStyleForTask = (e) => {
-        if(!isTodoList){
-            setTimeout(
-                document.getElementById(e.target.id).style="resize: vertical;overflow: auto;"
-                ,200);
-        }
-    };
-
-    const removeStyleForTask = (e) => {
-        if(!isTodoList){
-            setTimeout(
-                document.getElementById(e.target.id).style="resize: none;"
-                ,200);
-        }
     };
 
 </script>
@@ -157,18 +124,14 @@ import Todolist from "./Todolist.svelte";
 </style>
 
 <div class="task-container">
-        <!-- Checkbox -->
-    {#if isTodoList}
-        <div class="checkbox">
-            <Checkbox on:change="{toggleTaskDone}" small color='gray'/>
-        </div>
-    {:else}
-        <div class="checkbox" />
-    {/if}
+    <!-- Checkbox -->
+    <div class="checkbox">
+        <Checkbox on:change="{toggleTaskDone}" small color='gray'/>
+    </div>
+   
 
     <!-- Tarea -->
-    
-    <div id="task-{taskId}-{isTodoList}" class="task" data-name="{taskName}" 
+    <div id="task-{taskId}" class="task" data-name="{taskName}" 
             data-id="{taskId}" data-color="{projectColor}" draggable="true" 
             on:dragstart={onDragStart} on:dragend={onDragEnd} >
             <!-- Texto -->
@@ -178,7 +141,7 @@ import Todolist from "./Todolist.svelte";
                     on:focus={checkIfEnter} size="60" on:blur="{triggerEventTaskChanged}" on:blur="{toggleTaskEditable}"
                     value={taskName} data-id="{taskId}" data-color="{projectColor}"/>
             {:else}
-                <div ondrop="return false;" class='textfield' style='text-decoration:line-through;background-color:white'>
+                <div ondrop="return false;" class='textfield' style='text-decoration:line-through;color:gray;background-color:white'>
                     {taskName}
                 </div>
             {/if}
@@ -197,22 +160,14 @@ import Todolist from "./Todolist.svelte";
 
      <!-- Propiedades -->
      <div class="taskControls" id="taskControls">
-        {#if isTodoList}
-            <div class="editButton">
-                <Button id="btn-edit-task-{taskId}" class="editButton" color='gray' text  small icon='edit'
-                    on:click="{toggleTaskEditable}" />
-            </div>
-            <div class="deleteButton"/>
-            <div class="properties"> 
-                <Button id="btn-prop-task-{taskId}" icon="more_vert" text small/>
-            </div>    
-        {:else}
-            <div class="editButton" />
-            <div class="deleteButton">
-                <Button id="btn-del-task-{taskId}" data-taskId={taskId} data-slotId={slotId} on:click="{removeTaskTimesheet}" color='gray' text small icon='delete' />
-            </div>
-            <div class="properties"/>  
-        {/if}
+        <div class="editButton">
+            <Button id="btn-edit-task-{taskId}" class="editButton" color='gray' text  small icon='edit'
+                on:click="{toggleTaskEditable}" />
+        </div>
+        <div class="deleteButton"/>
+        <div class="properties"> 
+            <Button id="btn-prop-task-{taskId}" icon="more_vert" text small/>
+        </div>    
     </div>
 
      <!-- Color -->

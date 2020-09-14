@@ -1,38 +1,37 @@
 <script>
-	import Task from "./Task.svelte";	
-	import RemoveTask from "./RemoveTask.svelte";	
+	import Subslot from "./Subslot.svelte";	
     import Slot from "./Slot.svelte";	
     import Button from "smelte/src/components/Button";
 
     
     /********************************** DATA KITCHEN */
-    let tasks_hour1 = new Array();
-    let tasks_hour2 = new Array();
-    let tasks_hour3 = new Array();
+    let subslots_hour1 = new Array();
+    let subslots_hour2 = new Array();
+    let subslots_hour3 = new Array();
     
-    let task1 = new Object();
-    let task2 = new Object();
-    let task3 = new Object();
+    let subslot1 = new Object();
+    let subslot2 = new Object();
+    let subslot3 = new Object();
     
-    task1.id="1";
-    task1.name="TASK #1";
-    task1.color="#a5d5d3";
+    subslot1.id="1";
+    subslot1.name="SUBSLOT #1";
+    subslot1.color="#a5d5d3";
     
-    task2.id="2";
-    task2.name="TASK #2";
-    task2.color="#c5d5d3";
+    subslot2.id="2";
+    subslot2.name="SUBSLOT #2";
+    subslot2.color="#c5d5d3";
     
-    task3.id="3";
-    task3.name="TASK #3";
-    task3.color="#e5d5d3";
+    subslot3.id="3";
+    subslot3.name="SUBSLOT #3";
+    subslot3.color="#e5d5d3";
 
-    tasks_hour1.push(task1);
-    tasks_hour1.push(task2);
-    tasks_hour1.push(task3);
+    subslots_hour1.push(subslot1);
+    subslots_hour1.push(subslot2);
+    subslots_hour1.push(subslot3);
     
    
-    tasks_hour3.push(task3);
-    tasks_hour3.push(task1);
+    subslots_hour3.push(subslot3);
+    subslots_hour3.push(subslot1);
 
     let slots = new Array();
     let slot1 = new Object();
@@ -40,29 +39,29 @@
     let slot3 = new Object();
 
     slot1.hour="1";
-    slot1.tasks=tasks_hour1;
+    slot1.subslots=subslots_hour1;
 
     slot2.hour="2";
-    slot2.tasks=tasks_hour2;
+    slot2.subslots=subslots_hour2;
 
     slot3.hour="3";
-    slot3.tasks=tasks_hour3;
+    slot3.subslots=subslots_hour3;
 
     slots.push(slot1);
     slots.push(slot2);
     slots.push(slot3);
     /********************************** DATA KITCHEN */
     /********************************** FUNCTIONS */
-    let showRemoveTask = false;
+    let showRemoveSubslot = false;
 
-	const handleTaskDragStart = () => {showRemoveTask=true;};
-    const handleTaskDragEnd = () => {showRemoveTask=false;};
+	const handleSubslotDragStart = () => {showRemoveSubslot=true;};
+    const handleSubslotDragEnd = () => {showRemoveSubslot=false;};
     
-    function handleTaskAdded(event) {
-        let newTask = new Object();
-        newTask.name = event.detail.taskName;
-        newTask.id = event.detail.taskId;
-        newTask.color = event.detail.taskColor;
+    function handleSubslotAdded(event) {
+        let newSubslot = new Object();
+        newSubslot.name = event.detail.subslotName;
+        newSubslot.id = event.detail.subslotId;
+        newSubslot.color = event.detail.subslotColor;
         let slotHour = event.detail.slotId;
 
         let targetSlot = new Object;
@@ -76,33 +75,45 @@
             slots.splice(index, 1);
         }
 
-        if(!targetSlot.tasks) targetSlot.tasks = new Array();
-        targetSlot.tasks.push(newTask);
+        if(!targetSlot.subslots) targetSlot.subslots = new Array();
+        targetSlot.subslots.push(newSubslot);
         slots.push(targetSlot);
 
         slots = slots;
         slots.sort((a,b) => (a.hour > b.hour) ? 1 : ((b.hour > a.hour) ? -1 : 0)); 
     }
 
-    function handleTaskRemoved(event) {
-        let taskId = event.detail.taskId;
+    function handleSubslotRemoved(event) {
+        let subslotId = event.detail.subslotId;
         let slotId = event.detail.slotId;
 
         let targetSlot = new Object;
+        let nuevoSubslots = new Array();
+
         for(let i=0;i<slots.length;i++){
-            if(slots[i].hour == slotId)
-                targetSlot = slots[i];
+            if(slots[i].hour == slotId){
+                console.log('en TS este slot es '+slots[i].hour);
+                targetSlot=slots[i];
+                for(let j=0;j<targetSlot.subslots.length;j++){
+                    if(targetSlot.subslots[j].id != subslotId){
+                        console.log('en TS este subslot no se borra '+targetSlot.subslots[j].id);
+
+                        nuevoSubslots.push(targetSlot.subslots[j]);
+                    }else{
+                        console.log('en TS este subslot si se borra '+targetSlot.subslots[j].id);
+                    }
+                }
+                slots[i].subslots=nuevoSubslots;
+                break;
+            }
         }
 
-        const index = targetSlot.tasks.findIndex(task => task.id === taskId);
-        if (index > -1) {
-            targetSlot.tasks.splice(index, 1);
-        }
+     
 
         slots = slots;
         slots.sort((a,b) => (a.hour > b.hour) ? 1 : ((b.hour > a.hour) ? -1 : 0)); 
     }
-	</script>
+</script>
 
 
     <div class="container">
@@ -117,8 +128,8 @@
         </div>
         <div class="slots">
             {#each slots as slot}
-            <Slot hour="{slot.hour}" tasks={slot.tasks} 
-            on:taskAdded={handleTaskAdded} on:taskDragStart={handleTaskDragStart} on:taskDragEnd={handleTaskDragEnd} on:removeTaskTimesheet={handleTaskRemoved}/>
+                <Slot hour="{slot.hour}" subslots={slot.subslots} 
+                on:subslotAdded={handleSubslotAdded} on:subslotDragStart={handleSubslotDragStart} on:subslotDragEnd={handleSubslotDragEnd} on:removeSubslotTimesheet={handleSubslotRemoved}/> 
             {/each}
         </div>
     </div>
@@ -127,11 +138,12 @@
 
     .container{
 		box-shadow: 2px 2px 8px  rgba(0,0,0,0.1);
+        background-color: white;
     }
 
 	.timesheet-header {
         display: grid;
-        grid-template-columns: 10% 10% 80%;
+        grid-template-columns: 10% 10% 64%;
 		border-radius: 2px;
 
         text-align: center;
@@ -141,7 +153,6 @@
 	}
 
     .slots{
-        overflow-y: scroll;
         height: 600px;
     }
 

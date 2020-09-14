@@ -22,7 +22,7 @@
 					document.getElementById('btn-create-task').click();
 				}else if (e.key === 'Backspace' || e.key === 'Delete' || e.keyCode === 46 || e.keyCode === 8) {
                     let str=evt.target.value;
-                    let lastIndex = str.lastIndexOf(" ")+1;
+                    let lastIndex = str.lastIndexOf(" ")+2;
                     str = str.substring(0, lastIndex);
                     evt.target.value=str;
                 }

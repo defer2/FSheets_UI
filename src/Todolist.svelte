@@ -96,7 +96,7 @@
 	<div id="todolist-tasks" class="tasks">
 		{#each tasks as task}
 			<div class="todolist-task">
-				<Task taskId={task.id} taskName={task.name} isTodoList={true} projectColor={task.color}
+				<Task taskId={task.id} taskName={task.name} projectColor={task.color}
 				on:taskDragStart={handleTaskDragStart} on:taskDragEnd={handleTaskDragEnd} on:taskChanged={handleTaskChanged} />
 				
 			</div>
@@ -125,7 +125,7 @@
 
 	.todolist-container{
 		box-shadow: 2px 2px 8px rgba(0,0,0,0.1);
-
+		background-color: white;
 		margin: auto;
 	}
 

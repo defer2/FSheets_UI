@@ -3,53 +3,50 @@
     import Slot from "./Slot.svelte";	
     import Button from "smelte/src/components/Button";
 
-    
-    /********************************** DATA KITCHEN */
-    let subslots_hour1 = new Array();
-    let subslots_hour2 = new Array();
-    let subslots_hour3 = new Array();
-    
-    let subslot1 = new Object();
-    let subslot2 = new Object();
-    let subslot3 = new Object();
-    
-    subslot1.id="1";
-    subslot1.name="SUBSLOT #1";
-    subslot1.color="#a5d5d3";
-    
-    subslot2.id="2";
-    subslot2.name="SUBSLOT #2";
-    subslot2.color="#c5d5d3";
-    
-    subslot3.id="3";
-    subslot3.name="SUBSLOT #3";
-    subslot3.color="#e5d5d3";
+    let date='2020-09-03';
 
-    subslots_hour1.push(subslot1);
-    subslots_hour1.push(subslot2);
-    subslots_hour1.push(subslot3);
-    
-   
-    subslots_hour3.push(subslot3);
-    subslots_hour3.push(subslot1);
 
-    let slots = new Array();
-    let slot1 = new Object();
-    let slot2 = new Object();
-    let slot3 = new Object();
+	async function getTasksTAPI() {
+		let url = 'http://localhost:5011/view';
+	
+	}
 
-    slot1.hour="1";
-    slot1.subslots=subslots_hour1;
 
-    slot2.hour="2";
-    slot2.subslots=subslots_hour2;
+    async function getTimesheetTAPI(date){ 
+        let tempTimesheet;
 
-    slot3.hour="3";
-    slot3.subslots=subslots_hour3;
+        let url = 'http://localhost:5012/timesheets';        
+        let dateParameter = 'date='+date;
+        
+        url = url+'?'+dateParameter;
 
-    slots.push(slot1);
-    slots.push(slot2);
-    slots.push(slot3);
+        const res = await fetch(url);
+		const text = await res.json();
+
+		if (res.ok) {
+            console.log(text);
+			return text;
+		} else {
+			throw new Error(text);
+		}
+    }
+  
+    async function deleteSubslotTAPI(subslotId) {
+		let url = 'http://localhost:5012/subslots/'+subslotId;
+
+		var requestOptions = {
+			method: 'DELETE',
+			redirect: 'follow'
+		};
+
+		const res = await fetch(url, requestOptions)
+		.then(response => response)
+		.then(result => console.log(result))
+		.catch(error => console.log('error', error));
+
+        timesheetToday = getTimesheetTAPI(date);
+	}	
+
     /********************************** DATA KITCHEN */
     /********************************** FUNCTIONS */
     let showRemoveSubslot = false;
@@ -59,60 +56,44 @@
     
     function handleSubslotAdded(event) {
         let newSubslot = new Object();
-        newSubslot.name = event.detail.subslotName;
         newSubslot.id = event.detail.subslotId;
-        newSubslot.color = event.detail.subslotColor;
-        let slotHour = event.detail.slotId;
+        newSubslot.name = event.detail.subslotName;
+        let slotId = event.detail.slotId;
 
-        let targetSlot = new Object;
-        for(let i=0;i<slots.length;i++){
-            if(slots[i].hour == slotHour)
-                targetSlot = slots[i];
-        }
 
-        const index = slots.findIndex(slot => slot.hour === slotHour);
-        if (index > -1) {
-            slots.splice(index, 1);
-        }
 
-        if(!targetSlot.subslots) targetSlot.subslots = new Array();
-        targetSlot.subslots.push(newSubslot);
-        slots.push(targetSlot);
-
-        slots = slots;
-        slots.sort((a,b) => (a.hour > b.hour) ? 1 : ((b.hour > a.hour) ? -1 : 0)); 
+        createSubslotTAPI(slotId,newSubslot.id,newSubslot.name);
     }
 
     function handleSubslotRemoved(event) {
         let subslotId = event.detail.subslotId;
-        let slotId = event.detail.slotId;
-
-        let targetSlot = new Object;
-        let nuevoSubslots = new Array();
-
-        for(let i=0;i<slots.length;i++){
-            if(slots[i].hour == slotId){
-                console.log('en TS este slot es '+slots[i].hour);
-                targetSlot=slots[i];
-                for(let j=0;j<targetSlot.subslots.length;j++){
-                    if(targetSlot.subslots[j].id != subslotId){
-                        console.log('en TS este subslot no se borra '+targetSlot.subslots[j].id);
-
-                        nuevoSubslots.push(targetSlot.subslots[j]);
-                    }else{
-                        console.log('en TS este subslot si se borra '+targetSlot.subslots[j].id);
-                    }
-                }
-                slots[i].subslots=nuevoSubslots;
-                break;
-            }
-        }
-
-     
-
-        slots = slots;
-        slots.sort((a,b) => (a.hour > b.hour) ? 1 : ((b.hour > a.hour) ? -1 : 0)); 
+        deleteSubslotTAPI(subslotId);
     }
+
+    async function createSubslotTAPI(slotId, subslotId, subslotName) {
+        let url = 'http://localhost:5012/subslots/quick';
+        
+        let parameterSlotId='slot_id='+slotId;
+		let parameterSubslotId='task_id='+subslotId;
+		let parameterSubslotName='task_name='+subslotName;
+
+		url = url+'?'+parameterSlotId+'&'+parameterSubslotId+'&'+parameterSubslotName; //+'&'+parameterProjectId;
+
+		var requestOptions = {
+			method: 'POST',
+			redirect: 'follow'
+		};
+
+		const res = await fetch(url, requestOptions)
+		.then(response => response)
+		.then(result => console.log(result))
+		.catch(error => console.log('error', error));
+
+        timesheetToday = getTimesheetTAPI(date);
+    }
+    
+	let timesheetToday = getTimesheetTAPI(date);
+
 </script>
 
 
@@ -127,10 +108,21 @@
             <div class="title"><h5>Today</h5></div>
         </div>
         <div class="slots">
-            {#each slots as slot}
-                <Slot hour="{slot.hour}" subslots={slot.subslots} 
-                on:subslotAdded={handleSubslotAdded} on:subslotDragStart={handleSubslotDragStart} on:subslotDragEnd={handleSubslotDragEnd} on:removeSubslotTimesheet={handleSubslotRemoved}/> 
+
+        {#await timesheetToday}
+            <div/>
+        {:then oTimesheet}
+            {#each oTimesheet[0].Slots as slot}
+                {#if new Date(slot.hour).getHours() > 8 && new Date(slot.hour).getHours() < 19}
+                    <Slot slotId="{slot.id}" hour="{slot.hour}" subslots={slot.Subslots} 
+                        on:subslotAdded={handleSubslotAdded} on:subslotDragStart={handleSubslotDragStart} on:subslotDragEnd={handleSubslotDragEnd} on:removeSubslotTimesheet={handleSubslotRemoved}/> 
+                {/if}
             {/each}
+        {:catch error}
+            <p style="color: red">{error.message}</p>
+        {/await}	
+		
+  
         </div>
     </div>
 

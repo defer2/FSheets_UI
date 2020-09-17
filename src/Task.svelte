@@ -6,10 +6,12 @@
 
     export let taskName;
     export let taskId;
+    export let projectId;
     export let projectColor;
+    export let taskDescription;
+    export let taskStatus;
 
-    /*Functions*/
-    let taskDone = false;
+
     let taskEditable = false;
     let draggable = true;
 
@@ -44,8 +46,38 @@
         }
     };
 
-    const toggleTaskDone = () => {
-        taskDone = !taskDone;
+ 
+
+    const toggleTaskDone = (e) => {
+        taskStatus == 2 ? taskStatus = 1 : taskStatus = 2
+        console.log('task done');
+
+        
+        try{
+            let checkboxId=e.target.id;
+            console.log('checkboxId '+checkboxId);
+           
+
+            let txtId = checkboxId.replace('chk-done-','');
+            console.log('txtId '+txtId);
+
+            let divParent = document.getElementById(txtId);
+
+
+            console.log('dispatch taskChanged');
+
+            dispatch('taskChanged', {
+                taskId: divParent.getAttribute('data-id'),
+                taskName: divParent.getAttribute('data-name'),
+                taskColor: divParent.getAttribute('data-color'),
+                taskStatus: taskStatus,
+                taskDescription: divParent.getAttribute('data-description'),
+                taskProjectId: divParent.getAttribute('data-projectId'),
+            });
+
+        }catch(err){
+            console.log(err);
+        }
     };
 
     const onDragEnd = () => { dispatch('taskDragEnd', {}); };
@@ -55,6 +87,9 @@
             taskId: document.getElementById(e.target.id).getAttribute('data-id'),
             taskName: e.target.value,
             taskColor: document.getElementById(e.target.id).getAttribute('data-color'),
+            taskStatus: document.getElementById(e.target.id).getAttribute('data-status'),
+            taskDescription: document.getElementById(e.target.id).getAttribute('data-description'),
+            taskProjectId: document.getElementById(e.target.id).getAttribute('data-projectId'),
         });
     };
 
@@ -126,20 +161,20 @@
 <div class="task-container">
     <!-- Checkbox -->
     <div class="checkbox">
-        <Checkbox on:change="{toggleTaskDone}" small color='gray'/>
+        <Button id="chk-done-task-{taskId}" color='gray' text  small icon='done'
+                on:click="{toggleTaskDone}" />
     </div>
    
-
     <!-- Tarea -->
-    <div id="task-{taskId}" class="task" data-name="{taskName}" 
-            data-id="{taskId}" data-color="{projectColor}" draggable="true" 
+    <div id="task-{taskId}" class="task"  draggable="true" 
+            data-projectId="{projectId}" data-id="{taskId}" data-status={taskStatus} data-description={taskDescription} data-color="{projectColor}" data-name="{taskName}" 
             on:dragstart={onDragStart} on:dragend={onDragEnd} >
             <!-- Texto -->
-        {#if taskDone}
+        {#if taskStatus==2}
             {#if taskEditable}
                 <TextField id="txt-task-{taskId}" style='text-decoration:line-through;background-color:white;'
                     on:focus={checkIfEnter} size="60" on:blur="{triggerEventTaskChanged}" on:blur="{toggleTaskEditable}"
-                    value={taskName} data-id="{taskId}" data-color="{projectColor}"/>
+                    value={taskName} data-projectId="{projectId}" data-name="{taskName}" data-id="{taskId}" data-status={taskStatus} data-description={taskDescription}  data-color="{projectColor}"/>
             {:else}
                 <div ondrop="return false;" class='textfield' style='text-decoration:line-through;color:gray;background-color:white'>
                     {taskName}
@@ -149,7 +184,7 @@
             {#if taskEditable}
                 <TextField id="txt-task-{taskId}" style='background-color:white;' 
                     on:focus={checkIfEnter} size="60" on:blur="{triggerEventTaskChanged}" on:blur="{toggleTaskEditable}"
-                    value={taskName} data-id="{taskId}" data-color="{projectColor}"/>
+                    value={taskName} data-projectId="{projectId}" data-name="{taskName}" data-id="{taskId}" data-status={taskStatus} data-description={taskDescription}  data-color="{projectColor}"/>
             {:else}
                 <div ondrop="return false;" style='background-color:white'>
                     {taskName}

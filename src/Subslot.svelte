@@ -62,9 +62,13 @@
         align-items: center;
         
     }
+    .resize{
+        resize: vertical;
+        overflow: auto;
+    }
 </style>
 
-<div class="subslot-container">
+<div class="subslot-container resize">
     <!-- Tarea -->   
     <div id="subslot-{subslotId}" class="subslot" data-name="{subslotName}" 
             data-id="{subslotId}" data-color="{projectColor}" draggable="true" 

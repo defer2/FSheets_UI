@@ -5,7 +5,11 @@
 
     export let hour;
     export let subslots;
-    
+    export let slotId;
+
+
+    hour = new Date(hour).getHours();
+
     function onDrop(event,slotId) {
         event.preventDefault();
 
@@ -14,14 +18,13 @@
             const subslotElement = document.getElementById(id);
 
             const subslotName = subslotElement.dataset.name;
+            // const subslotColor = subslotElement.dataset.color;
             const subslotId = subslotElement.dataset.id;
-            const subslotColor = subslotElement.dataset.color;
 
             dispatch('subslotAdded', {
                 subslotId: subslotId,
-                subslotName: subslotName,
-                subslotColor: subslotColor,
-                slotId: slotId
+                slotId: slotId,
+                subslotName: subslotName
             });
         }
     }
@@ -68,21 +71,18 @@
         align-items: center;
     }
 
-    .resize{
-        resize: vertical;
-        overflow: auto;
-    }
+
 
 </style>
 
 <div>
-    <div class="slot" id="slot-{hour}" ondragover="return false;" on:drop={event => onDrop(event,hour)}>
+    <div class="slot" id="slot-{slotId}" ondragover="return false;" on:drop={event => onDrop(event,slotId)}>
         <div class="hour"><h5>{hour}</h5></div>
         <div class="subslots">
             {#each subslots as subslot}
                 <div class="slot-subslot">
                     <Subslot on:removesubslotTimesheetForSlot="{handleRemoveSubslotTimesheet}" on:subslotDragStart={handlesubslotDragStart} on:subslotDragEnd={handlesubslotDragEnd}
-                        subslotName={subslot.name} projectColor="{subslot.color}" subslotId="{subslot.id}" slotId="{hour}"/>
+                        subslotName={subslot.task_name} projectColor="{subslot.color}" subslotId="{subslot.id}" slotId="{hour}"/>
                 </div>
             {/each}
     </div>

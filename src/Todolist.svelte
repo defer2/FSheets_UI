@@ -2,41 +2,15 @@
 	import Task from "./Task.svelte";	
 	import CreateTask from "./CreateTask.svelte";	
 	import RemoveTask from "./RemoveTask.svelte";
+    import Button from "smelte/src/components/Button";
 
 
 	let showRemoveTask = false;
-	/********************************** DATA KITCHEN */
-    let task1 = new Object();
-    let task2 = new Object();
-    let task3 = new Object();
-    
-    task1.id="1";
-    task1.name="TASK #1";
-    task1.color="#a5d5d3";
-    
-    task2.id="2";
-    task2.name="TASK #2";
-    task2.color="#c5d5d3";
-    
-    task3.id="3";
-    task3.name="TASK #3";
-    task3.color="#e5d5d3";
-
-
+	const handleTaskDragStart = () => {showRemoveTask=true;};
+	const handleTaskDragEnd = () => {showRemoveTask=false;};
 	
-	let tasks = new Array();
-	tasks.push(task1);
-	tasks.push(task2);
-	tasks.push(task3);
 
-	var lastId=3;
-
-	/********************************** DATA KITCHEN */
-
-
-	
 	function getRandomColor() {
-		
 		var letters = '0123456789ABCDEF';
 		var color = '#';
 		for (var i = 0; i < 6; i++) {
@@ -46,68 +20,140 @@
 	}
 
 	const handleTaskAdded = (event) =>{
-		let newTask = new Object();
-		newTask.id = lastId + 1;
-		newTask.name = event.detail.taskName;		
-		newTask.color = getRandomColor();
-		tasks.push(newTask);
-		tasks = tasks;
-		lastId++;
+		createTasksTAPI(event.detail.taskName);
 	};
 
-	const handleTaskDragStart = () => {showRemoveTask=true;};
-	const handleTaskDragEnd = () => {showRemoveTask=false;};
 
-	function handleTaskChanged(event) {
+	const handleTaskChanged = (event) =>{
+		console.log('taskChanged handled');
+
         let newTask = new Object();
         newTask.name = event.detail.taskName;
         newTask.id = event.detail.taskId;
-        newTask.color = event.detail.taskColor;
+		newTask.description = event.detail.description;
+		newTask.color = event.detail.description;
+		newTask.status = event.detail.taskStatus;
+		newTask.projectId = event.detail.taskProjectId;
 
-        const index = tasks.findIndex(task => task.id === newTask.id);
-        if (index > -1) {
-            tasks.splice(index, 1);
-        }
-
-		tasks.push(newTask);
-		tasks = tasks;
-		tasks.sort((a,b) => (a.id > b.id) ? 1 : ((b.id > a.id) ? -1 : 0)); 
-	}
+		updateTaskTAPI(newTask);
+	};
 	
-	function handleTaskRemoved(event) {
-        let newTask = new Object();
-		newTask.id = event.detail.taskId;
-		tasks=tasks.filter((x)=>x.id != newTask.id );
-		console.log("Remove Task "+newTask.id );
+
+	const handleTaskRemoved = (event) =>{
+		deleteTasksTAPI(event.detail.taskId);
 		showRemoveTask=false;
-    }
+	};
+
+
+	let promise = getTasksTAPI();
+
+	async function getTasksTAPI() {
+		let url = 'http://localhost:5011/view';
+		const res = await fetch(url);
+		const text = await res.json();
+
+		if (res.ok) {
+			return text;
+		} else {
+			throw new Error(text);
+		}
+	}
+
+	async function createTasksTAPI(taskName) {
+		let url = 'http://localhost:5011/create?name='+taskName;
+
+		var requestOptions = {
+			method: 'POST',
+			redirect: 'follow'
+		};
+
+		const res = await fetch(url, requestOptions)
+		.then(response => response)
+		.then(result => console.log(result))
+		.catch(error => console.log('error', error));
+
+		promise = getTasksTAPI();
+	}
+
+	async function deleteTasksTAPI(taskId) {
+		let url = 'http://localhost:5011/delete/'+taskId;
+
+		var requestOptions = {
+			method: 'DELETE',
+			redirect: 'follow'
+		};
+
+		const res = await fetch(url, requestOptions)
+		.then(response => response)
+		.then(result => console.log(result))
+		.catch(error => console.log('error', error));
+
+		promise = getTasksTAPI();
+	}	
+	
+	async function updateTaskTAPI(task) {
+		let url = 'http://localhost:5011/update/'+task.id;
+		let parameterName='name='+task.name;
+		let parameterStatus='status='+task.status;
+		let parameterDescription='description='+task.description;
+		let parameterProjectId='project_id='+task.projectId;
+
+		url = url+'?'+parameterName+'&'+parameterStatus+'&'+parameterDescription; //+'&'+parameterProjectId;
+
+		console.log('updating task '+url);
+
+		var requestOptions = {
+			method: 'PUT',
+			redirect: 'follow',
+			headers: {
+				'Content-Type':  'application/json',
+				'Access-Control-Allow-Credentials' : 'true',
+				'Access-Control-Allow-Origin': '*',
+				'Access-Control-Allow-Methods': 'GET, POST, PATCH, DELETE, PUT, OPTIONS',
+				'Access-Control-Allow-Headers': 'Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With',
+			}
+		};
+
+		const res = await fetch(url, requestOptions)
+		.then(response => response)
+		.then(result => console.log(result))
+		.catch(error => console.log('error', error));
+
+		promise = getTasksTAPI();
+	}
+
+
 
 
 </script>
+
+
 <link
   href="https://fonts.googleapis.com/icon?family=Material+Icons"
   rel="stylesheet"
 />
 
-
 <div id="todolist-container" class="todolist-container">
 	<div class="title"><h5>Things to do</h5></div>
 	<div class="createTask"><CreateTask on:taskAdded="{handleTaskAdded}" /></div>
 	<div id="todolist-tasks" class="tasks">
-		{#each tasks as task}
-			<div class="todolist-task">
-				<Task taskId={task.id} taskName={task.name} projectColor={task.color}
-				on:taskDragStart={handleTaskDragStart} on:taskDragEnd={handleTaskDragEnd} on:taskChanged={handleTaskChanged} />
-				
-			</div>
-		{/each}
+		<div class="todolist-task">
+			{#await promise}
+			<div/>
+			{:then oTasks}
+				{#each oTasks as oTask}
+					<Task taskId={oTask.id} taskName={oTask.name} projectColor={oTask.project_id} taskStatus={oTask.status} taskDescription={oTask.description}
+						on:taskDragStart={handleTaskDragStart} on:taskDragEnd={handleTaskDragEnd} on:taskChanged={handleTaskChanged} />
+				{/each}
+			{:catch error}
+				<p style="color: red">{error.message}</p>
+			{/await}			
+		</div>
 	</div>
 	{#if showRemoveTask}
 		<div class="removeTask"><RemoveTask on:taskRemoved={handleTaskRemoved} /></div>
 	{/if}
 </div>
-
-
 
 <style>
 	.title{

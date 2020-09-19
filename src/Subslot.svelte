@@ -1,6 +1,4 @@
 <script>
-    import Checkbox from "smelte/src/components/Checkbox";
-    import TextField from "smelte/src/components/Textfield";
     import Button from "smelte/src/components/Button";
     import { createEventDispatcher } from 'svelte'
     import { watchResize } from "svelte-watch-resize";
@@ -9,105 +7,51 @@
     export let subslotId;
     export let projectColor;
     export let slotId;
-    export let subslotStartDate;
-    export let subslotEndDate;
-
+    export let taskId;
+    export let subslotHeight;
+    
     let resizable = false;
+    let wasResized = false;
     let setInitialSizes = false;
-
-    subslotStartDate = new Date(subslotStartDate);
-    subslotEndDate= new Date(subslotEndDate);
-    let diffDates = subslotEndDate - subslotStartDate;    
-    let subslotMinutes =  Math.round(((diffDates % 86400000) % 3600000) / 60000); 
-    let percSubslot = subslotMinutes / 60;
-    let subslotHeight = 120 * percSubslot;
-
     const dispatch = createEventDispatcher();
 
-    const onDragStart = (e) => {
+    const handleDragStart = (e) => {
         e.dataTransfer.setData('text/plain', e.target.id);
         dispatch('subslotDragStart', {
             subslotId: e.target.id
         }); 
     };
 
-    const onDragEnd = () => { dispatch('subslotDragEnd', {}); };
+    const handleDragEnd = () => { dispatch('subslotDragEnd', {}); };
     
-    const removesubslotTimesheet = (e) => {        
-        let subslotId = document.getElementById(e.target.id).getAttribute('data-subslotid');
-        let slotId = document.getElementById(e.target.id).getAttribute('data-slotid');
-    
+    const handleRemovesubslotTimesheet = () => {        
         dispatch('removesubslotTimesheetForSlot', {
             subslotId: subslotId,
             slotId: slotId
         });
     };
 
-
-    const addMinutes = (date, minutes) => {
-        return new Date(date.getTime() + minutes*60000);
-    };
-
-    const subSeconds = (date, seconds) => {
-        return new Date(date.getTime() - seconds*1000);
-    };
-
-    const formatDate = (date) => {
-        let hours = date.getHours();
-        let minutes = date.getMinutes();
-        let seconds = date.getSeconds();
-        let month = date.getMonth()+1;
-        let day = date.getDate();
-
-        month = month < 10 ? '0'+month : month;
-        day = day < 10 ? '0'+day : day;
-        minutes = minutes < 10 ? '0'+minutes : minutes;
-        hours = hours < 10 ? '0'+hours : hours;
-        seconds = seconds < 10 ? '0'+seconds : seconds;
-
-        let strTime = hours + ':' + minutes + ':' + seconds;
-        return date.getFullYear() + "-" + month + "-" + day + " " + strTime;
-    };
-
-
-    const handleResizeOption = (event) => {
+    const handleResizeOption = () => {
         resizable = !resizable;
     };
 
-
+    const handleMouseUp = () => {
+        if(wasResized){
+            dispatch('subslotsChangeSize', {
+                    slotId: slotId,
+                    subslotId: subslotId
+                }); 
+            wasResized = false;
+        }
+    };
+    
     const handleResize = (node) => {
         if(!setInitialSizes){
             setInitialSizes = true;
             subslotHeight = node.clientHeight;
         }else{
-            node.setAttribute('data-height',node.clientHeight);
-            let slots = Array.from(document.getElementById('slot-'+slotId).getElementsByClassName("subslot-container"));
-            
-            let totalHeight = 0;
-            slots.forEach(function(subslot) {
-                totalHeight += parseInt(subslot.getAttribute('data-height'));
-            });
-
-            let oSubslots = new Array();
-            let slotStartDate = document.getElementById('slot-'+slotId).getAttribute('data-startdate');
-            let startDate = new Date(slotStartDate);
-            slots.forEach(function(subslot) {
-                let height = parseInt(subslot.getAttribute('data-height'));
-                let minutes = 60 * height / totalHeight;
-                let endDate = addMinutes(startDate, minutes);
-
-                let oSubslot = {
-                    percentage: height / totalHeight,
-                    id: subslotId,
-                    startDate: formatDate(startDate),
-                    endDate: formatDate(subSeconds(endDate,1)),
-                    minutes: minutes
-                }; 
-
-                startDate = endDate;
-                oSubslots.push(oSubslot);
-            });
-            console.log(oSubslots);
+            wasResized = true;
+            node.setAttribute('data-height',node.clientHeight+1);
         }
     };
 </script>
@@ -119,9 +63,9 @@
         grid-template-columns: 84% 14% 2%;
         position: relative;
         border-top: 0.1em rgb(224, 224, 224) dashed;
-        min-height: 40px;
-        max-height: 120px;
-        margin-top: -0.1em; 
+        min-height: 35px;
+        max-height: 160px;
+        margin-top: -0.05em; 
     }
 
     .subslotControls{
@@ -144,29 +88,32 @@
     }
 </style>
 
-<div style="height: {subslotHeight}px;" id={'subslot-container-'+subslotId+'-'+slotId} class="{resizable === true ? 'subslot-container resize': 'subslot-container'}" data-height="{subslotHeight}"
-    on:mouseover="{handleResizeOption}" on:mouseout="{handleResizeOption}" use:watchResize={handleResize}>
+<div id={'subslot-container-'+subslotId} 
+    data-slotId="{slotId}" data-taskId="{taskId}" data-height="{subslotHeight}" data-subslotId="{subslotId}"
+    class="{resizable === true ? 'subslot-container resize': 'subslot-container'}" style="height: {subslotHeight}px;" 
+    on:mouseover="{handleResizeOption}" on:mouseup="{handleMouseUp}" on:mouseout="{handleResizeOption}" use:watchResize="{handleResize}">
 
     <!-- Tarea -->   
-    <div id="subslot-{subslotId}" class="subslot" data-name="{subslotName}" 
-            data-id="{subslotId}" data-color="{projectColor}" data-slotId="{slotId}" draggable="true" 
-            on:dragstart={onDragStart} on:dragend={onDragEnd}>
+    <div id="subslot-{subslotId}" class="subslot" data-name="{subslotName}" data-slotId="{slotId}"
+            data-id="{subslotId}" data-color="{projectColor}" data-taskId="{taskId}" draggable="true" 
+            on:dragstart={handleDragStart} on:dragend={handleDragEnd}>
             
             <!-- Texto -->
-            <div ondrop="return false;" style='background-color:white'>
+            <div ondrop="return false;" style='background-color:white' data-slotId="{slotId}">
                 {subslotName}
             </div>
     </div>
 
      <!-- Propiedades -->
-     <div class="subslotControls" id="subslotControls-subslot-{subslotId}">
-            <div class="deleteButton">
-                <Button id="btn-del-subslot-{slotId}-{subslotId}" data-subslotId="{subslotId}" data-slotId={slotId} on:click="{removesubslotTimesheet}" color='gray' text small icon='delete'/>
+     <div class="subslotControls" id="subslotControls-subslot-{subslotId}" data-slotId="{slotId}">
+            <div class="deleteButton" data-slotId="{slotId}">
+                <Button id="btn-del-subslot-{slotId}-{subslotId}" data-taskId="{taskId}" data-subslotId="{subslotId}" data-slotId={slotId} 
+                on:click="{handleRemovesubslotTimesheet}" color='gray' text small icon='delete'/>
             </div>
     </div>
 
      <!-- Color -->
-    <div style="background-color:{projectColor};" id="project-subslot-{subslotId}" >
+    <div style="background-color:{projectColor};" id="project-subslot-{subslotId}" data-slotId="{slotId}">
     </div>
 </div>
 

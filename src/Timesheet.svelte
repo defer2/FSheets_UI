@@ -4,19 +4,16 @@
     import Button from "smelte/src/components/Button";
 
     let date='2020-09-03';
-
-
-	async function getTasksTAPI() {
-		let url = 'http://localhost:5011/view';
-	
-	}
-
+    let showRemoveSubslot = false;
+    let timesheetToday = getTimesheetTAPI(date);
+    
+    /* API functions*/
 
     async function getTimesheetTAPI(date){ 
         let tempTimesheet;
 
         let url = 'http://localhost:5012/timesheets';        
-        let dateParameter = 'date='+date;
+        const dateParameter = 'date='+date;
         
         url = url+'?'+dateParameter;
 
@@ -31,52 +28,29 @@
     }
   
     async function deleteSubslotTAPI(subslotId) {
-		let url = 'http://localhost:5012/subslots/'+subslotId;
+		const url = 'http://localhost:5012/subslots/'+subslotId;
 
 		var requestOptions = {
 			method: 'DELETE',
 			redirect: 'follow'
 		};
 
-		const res = await fetch(url, requestOptions)
-		.then(response => response)
-		.then(result => console.log(result))
-		.catch(error => console.log('error', error));
+		await fetch(url, requestOptions)
+            .then(response => response)
+            .then(result => result)
+            .catch(error => console.log('error', error));
 
         timesheetToday = getTimesheetTAPI(date);
 	}	
 
-    /********************************** DATA KITCHEN */
-    /********************************** FUNCTIONS */
-    let showRemoveSubslot = false;
-
-	const handleSubslotDragStart = () => {showRemoveSubslot=true;};
-    const handleSubslotDragEnd = () => {showRemoveSubslot=false;};
-    
-    function handleSubslotAdded(event) {
-        let newSubslot = new Object();
-        newSubslot.id = event.detail.subslotId;
-        newSubslot.name = event.detail.subslotName;
-        let slotId = event.detail.slotId;
-
-
-
-        createSubslotTAPI(slotId,newSubslot.id,newSubslot.name);
-    }
-
-    function handleSubslotRemoved(event) {
-        let subslotId = event.detail.subslotId;
-        deleteSubslotTAPI(subslotId);
-    }
-
-    async function createSubslotTAPI(slotId, subslotId, subslotName) {
+    async function createSubslotTAPI(slotId, taskId, taskName) {
         let url = 'http://localhost:5012/subslots/quick';
         
-        let parameterSlotId='slot_id='+slotId;
-		let parameterSubslotId='task_id='+subslotId;
-		let parameterSubslotName='task_name='+subslotName;
+        const parameterSlotId='slot_id='+slotId;
+		const parameterTaskId='task_id='+taskId;
+        const parameterTaskName='task_name='+taskName;
 
-		url = url+'?'+parameterSlotId+'&'+parameterSubslotId+'&'+parameterSubslotName; //+'&'+parameterProjectId;
+		url = url+'?'+parameterSlotId+'&'+parameterTaskId+'&'+parameterTaskName; //+'&'+parameterProjectId;
 
 		var requestOptions = {
 			method: 'POST',
@@ -85,13 +59,55 @@
 
 		const res = await fetch(url, requestOptions)
 		.then(response => response)
-		.then(result => console.log(result))
+		.then(result => result)
+		.catch(error => console.log('error', error));
+
+        timesheetToday = getTimesheetTAPI(date);
+    }    
+    
+    async function updateSubslotTAPI(subslotId, slotId, startDate, endDate) {
+        let url = 'http://localhost:5012/subslots';
+        
+        const parameterSubslotId='/'+subslotId;
+        const parameterSlotId='slot_id='+slotId;
+		const parameterStartDate='start_date='+startDate;
+        const parameterEndDate='end_date='+endDate;
+        const parameterOperation='operation=change_dates';
+
+        url += parameterSubslotId+'?'+parameterSlotId+'&'+parameterStartDate+'&'+parameterEndDate+'&'+parameterOperation; 
+        
+		var requestOptions = {
+			method: 'PUT',
+			redirect: 'follow'
+		};
+
+		const res = await fetch(url, requestOptions)
+		.then(response => response)
+		.then(result => result)
 		.catch(error => console.log('error', error));
 
         timesheetToday = getTimesheetTAPI(date);
     }
+
+    /* HANDLE functions*/
+
+	const handleSubslotDragStart = () => {showRemoveSubslot=true;};
+    const handleSubslotDragEnd = () => {showRemoveSubslot=false;};
     
-	let timesheetToday = getTimesheetTAPI(date);
+    const handleSubslotAdded = (event) =>{
+        createSubslotTAPI(event.detail.slotId, event.detail.taskId, event.detail.subslotName);
+    };
+
+    const handleSubslotChangeSize = (event) =>{
+        event.detail.subslots.forEach((subslot) => {
+            updateSubslotTAPI(subslot.id, subslot.slotId, subslot.startDate, subslot.endDate);
+        });
+    };
+
+    const handleSubslotRemoved = (event) => {
+        deleteSubslotTAPI(event.detail.subslotId);
+    }
+
 
 </script>
 
@@ -114,7 +130,8 @@
             {#each oTimesheet[0].Slots as slot}
                 {#if new Date(slot.hour).getHours() > 8 && new Date(slot.hour).getHours() < 19}
                     <Slot slotId="{slot.id}" hour="{slot.hour}" subslots={slot.Subslots}
-                        on:subslotAdded={handleSubslotAdded} on:subslotDragStart={handleSubslotDragStart} on:subslotDragEnd={handleSubslotDragEnd} on:removeSubslotTimesheet={handleSubslotRemoved}/> 
+                        on:subslotAdded={handleSubslotAdded} on:subslotDragStart={handleSubslotDragStart} on:subslotsChangeSize={handleSubslotChangeSize}
+                        on:subslotDragEnd={handleSubslotDragEnd} on:removeSubslotTimesheet={handleSubslotRemoved}/> 
                 {/if}
             {/each}
         {:catch error}

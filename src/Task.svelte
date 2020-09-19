@@ -17,14 +17,14 @@
 
     const dispatch = createEventDispatcher();
 
-    const onDragStart = (e) => {
+    const handleDragStart = (e) => {
         e.dataTransfer.setData('text/plain', e.target.id);
         dispatch('taskDragStart', {
             taskId: e.target.id
         }); 
     };
 
-    const toggleTaskEditable = (e) => {
+    const handleTaskEditable = (e) => {
         taskEditable = !taskEditable;
         draggable = !taskEditable;
 
@@ -46,9 +46,8 @@
         }
     };
 
- 
 
-    const toggleTaskDone = (e) => {
+    const handleTaskDone = (e) => {
         taskStatus == 2 ? taskStatus = 1 : taskStatus = 2
         
         try{
@@ -65,14 +64,14 @@
                 taskProjectId: divParent.getAttribute('data-projectId'),
             });
 
-        }catch(err){
-            console.log(err);
+        }catch(error){
+            console.log('error', error);
         }
     };
 
-    const onDragEnd = () => { dispatch('taskDragEnd', {}); };
+    const handleDragEnd = () => { dispatch('taskDragEnd', {}); };
     
-    const triggerEventTaskChanged = (e) => {
+    const handleTaskChanged = (e) => {
         dispatch('taskChanged', {
             taskId: document.getElementById(e.target.id).getAttribute('data-id'),
             taskName: e.target.value,
@@ -88,7 +87,7 @@
         a.parentElement.parentElement.draggable=true;
     };
 
-    const checkIfEnter = (evt) => {
+    const handleEnter = (evt) => {
 			evt.target.addEventListener('keyup',(e)=>{
 				if (e.key === 'Enter' || e.keyCode === 13) {
                     e.target.blur();
@@ -105,6 +104,7 @@
         grid-template-columns: 10% 74% 14% 2%;
         position: relative;
         border-top: 0.1em rgb(224, 224, 224) dashed;
+        height: 60px;
     }
 
     .taskControls{
@@ -124,7 +124,6 @@
     }
 
     .checkbox{
-        padding-top: 10px;
         display: flex;
         margin-left: 10px;
         justify-content: center;
@@ -152,18 +151,18 @@
     <!-- Checkbox -->
     <div class="checkbox">
         <Button id="chk-done-task-{taskId}" color='gray' text  small icon='done'
-                on:click="{toggleTaskDone}" />
+                on:click="{handleTaskDone}" />
     </div>
    
     <!-- Tarea -->
     <div id="task-{taskId}" class="task"  draggable="true" 
             data-projectId="{projectId}" data-id="{taskId}" data-status={taskStatus} data-description={taskDescription} data-color="{projectColor}" data-name="{taskName}" 
-            on:dragstart={onDragStart} on:dragend={onDragEnd} >
+            on:dragstart={handleDragStart} on:dragend={handleDragEnd} >
             <!-- Texto -->
         {#if taskStatus==2}
             {#if taskEditable}
                 <TextField id="txt-task-{taskId}" style='text-decoration:line-through;background-color:white;'
-                    on:focus={checkIfEnter} size="60" on:blur="{triggerEventTaskChanged}" on:blur="{toggleTaskEditable}"
+                    on:focus={handleEnter} size="60" on:blur="{handleTaskChanged}" on:blur="{handleTaskEditable}"
                     value={taskName} data-projectId="{projectId}" data-name="{taskName}" data-id="{taskId}" data-status={taskStatus} data-description={taskDescription}  data-color="{projectColor}"/>
             {:else}
                 <div ondrop="return false;" class='textfield' style='text-decoration:line-through;color:gray;background-color:white'>
@@ -173,7 +172,7 @@
         {:else}
             {#if taskEditable}
                 <TextField id="txt-task-{taskId}" style='background-color:white;' 
-                    on:focus={checkIfEnter} size="60" on:blur="{triggerEventTaskChanged}" on:blur="{toggleTaskEditable}"
+                    on:focus={handleEnter} size="60" on:blur="{handleTaskChanged}" on:blur="{handleTaskEditable}"
                     value={taskName} data-projectId="{projectId}" data-name="{taskName}" data-id="{taskId}" data-status={taskStatus} data-description={taskDescription}  data-color="{projectColor}"/>
             {:else}
                 <div ondrop="return false;" style='background-color:white'>
@@ -187,7 +186,7 @@
      <div class="taskControls" id="taskControls">
         <div class="editButton">
             <Button id="btn-edit-task-{taskId}" class="editButton" color='gray' text  small icon='edit'
-                on:click="{toggleTaskEditable}" />
+                on:click="{handleTaskEditable}" />
         </div>
         <div class="deleteButton"/>
         <div class="properties"> 

@@ -68,7 +68,7 @@
 
 		const res = await fetch(url, requestOptions)
 		.then(response => response)
-		.then(result => console.log(result))
+		.then(result => result)
 		.catch(error => console.log('error', error));
 
 		promise = getTasksTAPI();
@@ -84,7 +84,7 @@
 
 		const res = await fetch(url, requestOptions)
 		.then(response => response)
-		.then(result => console.log(result))
+		.then(result => result)
 		.catch(error => console.log('error', error));
 
 		promise = getTasksTAPI();
@@ -113,7 +113,7 @@
 
 		const res = await fetch(url, requestOptions)
 		.then(response => response)
-		.then(result => console.log(result))
+		.then(result => result)
 		.catch(error => console.log('error', error));
 
 		promise = getTasksTAPI();

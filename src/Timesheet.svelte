@@ -24,7 +24,6 @@
 		const text = await res.json();
 
 		if (res.ok) {
-            console.log(text);
 			return text;
 		} else {
 			throw new Error(text);
@@ -114,7 +113,7 @@
         {:then oTimesheet}
             {#each oTimesheet[0].Slots as slot}
                 {#if new Date(slot.hour).getHours() > 8 && new Date(slot.hour).getHours() < 19}
-                    <Slot slotId="{slot.id}" hour="{slot.hour}" subslots={slot.Subslots} 
+                    <Slot slotId="{slot.id}" hour="{slot.hour}" subslots={slot.Subslots}
                         on:subslotAdded={handleSubslotAdded} on:subslotDragStart={handleSubslotDragStart} on:subslotDragEnd={handleSubslotDragEnd} on:removeSubslotTimesheet={handleSubslotRemoved}/> 
                 {/if}
             {/each}

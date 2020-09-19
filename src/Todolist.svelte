@@ -25,9 +25,8 @@
 
 
 	const handleTaskChanged = (event) =>{
-		console.log('taskChanged handled');
-
-        let newTask = new Object();
+		let newTask = new Object();
+		
         newTask.name = event.detail.taskName;
         newTask.id = event.detail.taskId;
 		newTask.description = event.detail.description;
@@ -99,8 +98,6 @@
 		let parameterProjectId='project_id='+task.projectId;
 
 		url = url+'?'+parameterName+'&'+parameterStatus+'&'+parameterDescription; //+'&'+parameterProjectId;
-
-		console.log('updating task '+url);
 
 		var requestOptions = {
 			method: 'PUT',

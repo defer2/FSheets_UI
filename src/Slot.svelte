@@ -7,8 +7,8 @@
     export let subslots;
     export let slotId;
 
-
-    hour = new Date(hour).getHours();
+    let slotStartDate = new Date(hour);
+    hour = slotStartDate.getHours();
 
     function onDrop(event,slotId) {
         event.preventDefault();
@@ -59,8 +59,8 @@
         display: grid;
         grid-template-columns: 20% 80%;
         text-align: left;
-        min-height: 30px;
-        border-bottom: 0.15em rgb(238, 238, 238) solid;
+        min-height: 40px;
+        border-bottom: 0.12em rgb(224, 224, 224) solid;
         width:100%;
 	}
 
@@ -76,13 +76,14 @@
 </style>
 
 <div>
-    <div class="slot" id="slot-{slotId}" ondragover="return false;" on:drop={event => onDrop(event,slotId)}>
+    <div class="slot" id="slot-{slotId}" data-startdate={slotStartDate} ondragover="return false;" on:drop={event => onDrop(event,slotId)}>
         <div class="hour"><h5>{hour}</h5></div>
         <div class="subslots">
             {#each subslots as subslot}
                 <div class="slot-subslot">
                     <Subslot on:removesubslotTimesheetForSlot="{handleRemoveSubslotTimesheet}" on:subslotDragStart={handlesubslotDragStart} on:subslotDragEnd={handlesubslotDragEnd}
-                        subslotName={subslot.task_name} projectColor="{subslot.color}" subslotId="{subslot.id}" slotId="{hour}"/>
+                        subslotName={subslot.task_name} projectColor="{subslot.color}" subslotId="{subslot.id}" slotId="{slotId}"
+                        subslotStartDate={subslot.start_date} subslotEndDate={subslot.end_date} />
                 </div>
             {/each}
     </div>

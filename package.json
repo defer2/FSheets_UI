@@ -22,7 +22,9 @@
   },
   "dependencies": {
     "@material-ui/styles": "^4.10.0",
+    "css-element-queries": "^1.2.3",
     "sirv-cli": "^1.0.0",
-    "smelte": "^1.0.15"
+    "smelte": "^1.0.15",
+    "svelte-watch-resize": "^1.0.3"
   }
 }

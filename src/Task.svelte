@@ -50,21 +50,11 @@
 
     const toggleTaskDone = (e) => {
         taskStatus == 2 ? taskStatus = 1 : taskStatus = 2
-        console.log('task done');
-
         
         try{
             let checkboxId=e.target.id;
-            console.log('checkboxId '+checkboxId);
-           
-
             let txtId = checkboxId.replace('chk-done-','');
-            console.log('txtId '+txtId);
-
             let divParent = document.getElementById(txtId);
-
-
-            console.log('dispatch taskChanged');
 
             dispatch('taskChanged', {
                 taskId: divParent.getAttribute('data-id'),

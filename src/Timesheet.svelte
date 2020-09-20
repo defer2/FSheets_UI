@@ -10,21 +10,42 @@
     /* API functions*/
 
     async function getTimesheetTAPI(date){ 
-        let tempTimesheet;
-
         let url = 'http://localhost:5012/timesheets';        
         const dateParameter = 'date='+date;
         
         url = url+'?'+dateParameter;
+        const timesheet = await fetch(url)
+            .then(response => response)
+            .then(data => {
+                return data.json();
+            })
+            .catch(error => console.log('error', error));
 
-        const res = await fetch(url);
-		const text = await res.json();
+        let Slots = timesheet[0].Slots;
 
-		if (res.ok) {
-			return text;
-		} else {
-			throw new Error(text);
-		}
+        for(let i = 0; i < Slots.length ; i++){
+            let subslots = Slots[i].Subslots;
+
+            for(let j = 0; j < subslots.length; j++){
+                let subslot = subslots[j];
+
+                const taskId = subslot.task_id;
+                let url = 'http://localhost:5011/view/project';        
+                const parameterTaskId = taskId;
+                
+                url = url+'/'+parameterTaskId;
+
+                const project = await fetch(url)
+                    .then(response => response)
+                    .then(data => {
+                        return data.json();
+                    }).catch(error => console.log('error', error));
+
+                subslot.project = project;
+            }
+        }
+
+        return timesheet;
     }
   
     async function deleteSubslotTAPI(subslotId) {
@@ -100,6 +121,7 @@
 
     const handleSubslotChangeSize = (event) =>{
         event.detail.subslots.forEach((subslot) => {
+            console.log(subslot);
             updateSubslotTAPI(subslot.id, subslot.slotId, subslot.startDate, subslot.endDate);
         });
     };

@@ -2,10 +2,11 @@
 	import Task from "./Task.svelte";	
 	import CreateTask from "./CreateTask.svelte";	
 	import RemoveTask from "./RemoveTask.svelte";
-    import Button from "smelte/src/components/Button";
 
 
 	let showRemoveTask = false;
+
+	/*HANDLE Functions*/
 	const handleTaskDragStart = () => {showRemoveTask=true;};
 	const handleTaskDragEnd = () => {showRemoveTask=false;};
 	
@@ -43,19 +44,49 @@
 		showRemoveTask=false;
 	};
 
+	/*API Functions*/
 
-	let promise = getTasksTAPI();
 
-	async function getTasksTAPI() {
-		let url = 'http://localhost:5011/view';
-		const res = await fetch(url);
-		const text = await res.json();
+	async function getProjectsTAPI(projectId) {
+        let url = 'http://localhost:5010/view';        
+        
+        const res = await fetch(url);
+		const projects = await res.json();
 
 		if (res.ok) {
-			return text;
+			return projects;
 		} else {
-			throw new Error(text);
+			throw new Error(project);
 		}
+	}
+	
+	async function getTasksTAPI() {
+		let url = 'http://localhost:5011/view';
+
+		const tasks = await fetch(url)
+		.then(response => response)
+		.then(data => {
+			return data.json();
+		})
+		.catch(error => console.log('error', error));
+
+		for(let i = 0; i< tasks.length; i++){
+			const projectId = tasks[i].project_id;
+			let url = 'http://localhost:5010/view';        
+			const parameterProjectId = projectId;
+			
+			url = url+'/'+parameterProjectId;
+
+			const project = await fetch(url)
+				.then(response => response)
+				.then(data => {
+					return data.json();
+				}).catch(error => console.log('error', error));
+
+			tasks[i].project = project[0];
+		}
+
+		return tasks;
 	}
 
 	async function createTasksTAPI(taskName) {
@@ -71,7 +102,7 @@
 		.then(result => result)
 		.catch(error => console.log('error', error));
 
-		promise = getTasksTAPI();
+		tasks = getTasksTAPI();
 	}
 
 	async function deleteTasksTAPI(taskId) {
@@ -87,7 +118,7 @@
 		.then(result => result)
 		.catch(error => console.log('error', error));
 
-		promise = getTasksTAPI();
+		tasks = getTasksTAPI();
 	}	
 	
 	async function updateTaskTAPI(task) {
@@ -102,13 +133,6 @@
 		var requestOptions = {
 			method: 'PUT',
 			redirect: 'follow',
-			headers: {
-				'Content-Type':  'application/json',
-				'Access-Control-Allow-Credentials' : 'true',
-				'Access-Control-Allow-Origin': '*',
-				'Access-Control-Allow-Methods': 'GET, POST, PATCH, DELETE, PUT, OPTIONS',
-				'Access-Control-Allow-Headers': 'Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With',
-			}
 		};
 
 		const res = await fetch(url, requestOptions)
@@ -116,12 +140,10 @@
 		.then(result => result)
 		.catch(error => console.log('error', error));
 
-		promise = getTasksTAPI();
+		tasks = getTasksTAPI();
 	}
 
-
-
-
+	let tasks = getTasksTAPI();
 </script>
 
 
@@ -135,11 +157,11 @@
 	<div class="createTask"><CreateTask on:taskAdded="{handleTaskAdded}" /></div>
 	<div id="todolist-tasks" class="tasks">
 		<div class="todolist-task">
-			{#await promise}
+			{#await tasks}
 			<div/>
 			{:then oTasks}
 				{#each oTasks as oTask}
-					<Task taskId={oTask.id} taskName={oTask.name} projectColor={oTask.project_id} taskStatus={oTask.status} taskDescription={oTask.description}
+					<Task taskId={oTask.id} taskName={oTask.name} taskProject={oTask.project} taskStatus={oTask.status} taskDescription={oTask.description}
 						on:taskDragStart={handleTaskDragStart} on:taskDragEnd={handleTaskDragEnd} on:taskChanged={handleTaskChanged} />
 				{/each}
 			{:catch error}

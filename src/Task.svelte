@@ -7,13 +7,14 @@
     export let taskName;
     export let taskId;
     export let projectId;
-    export let projectColor;
+    export let taskProject;
     export let taskDescription;
     export let taskStatus;
 
-
     let taskEditable = false;
     let draggable = true;
+    let projectColor = taskProject.color;
+
 
     const dispatch = createEventDispatcher();
 
@@ -143,8 +144,10 @@
         align-items: center;
     }
 
-
-
+    .projectColor{
+        margin-left: 7px;
+        width: 5px;
+    }
 </style>
 
 <div class="task-container">
@@ -195,7 +198,7 @@
     </div>
 
      <!-- Color -->
-    <div style="background-color:{projectColor};" id="project-task-{taskId}" >
+    <div style="background-color:{projectColor};" class="projectColor" id="project-task-{taskId}" >
     </div>
 </div>
 

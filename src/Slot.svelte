@@ -22,7 +22,7 @@
     
         const taskName = draggingElement.dataset.name;
         const taskId = draggingElement.dataset.id;
-        // const taskColor = draggingElement.dataset.color;
+        const taskColor = draggingElement.dataset.color;
 
         let subslot = subslotAlreadyExists(slotId, taskId)[0];
 
@@ -40,7 +40,8 @@
             dispatch('subslotAdded', {
                 slotId: slotId,
                 subslotName: taskName,
-                taskId: taskId
+                taskId: taskId,
+                taskColor: taskColor
             });
         }
         
@@ -155,7 +156,7 @@
                 startDate: formatDate(startDate),
                 endDate: formatDate(subSeconds(endDate,1)),
                 minutes: minutes,
-                percentage: height / totalHeight
+                project: JSON.parse(subslot.dataset.project),
             }; 
 
             startDate = endDate;
@@ -204,7 +205,7 @@
                 <div class="slot-subslot" data-slotId="{slotId}">
                     <Subslot on:subslotsChangeSize={handleSubslotChangeSize} on:removesubslotTimesheetForSlot="{handleRemoveSubslotTimesheet}" 
                     on:subslotDragStart={handlesubslotDragStart} on:subslotDragEnd={handlesubslotDragEnd}
-                        subslotName={subslot.task_name} projectColor="{subslot.color}" subslotId="{subslot.id}" slotId="{slotId}" taskId="{subslot.task_id}"
+                        subslotName={subslot.task_name} project="{subslot.project}" subslotId="{subslot.id}" slotId="{slotId}" taskId="{subslot.task_id}"
                         subslotStartDate={subslot.start_date} subslotEndDate={subslot.end_date} subslotHeight="{subslot.height}" />
                 </div>
             {/each}

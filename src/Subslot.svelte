@@ -5,7 +5,7 @@
 
     export let subslotName;
     export let subslotId;
-    export let projectColor;
+    export let project;
     export let slotId;
     export let taskId;
     export let subslotHeight;
@@ -60,42 +60,59 @@
 
     .subslot-container{
         display: grid;
-        grid-template-columns: 84% 14% 2%;
+        grid-template-columns: 84% 15% 1%;
         position: relative;
         border-top: 0.1em rgb(224, 224, 224) dashed;
         min-height: 35px;
         max-height: 160px;
         margin-top: -0.05em; 
-    }
-
-    .subslotControls{
-        display: grid;
-        grid-template-columns: 1fr 1fr 1fr;
-        justify-content: center;
-        align-items: center;
-        margin-right: 15px;
+        position: relative;
     }
 
     .subslot{
         display: flex;
         justify-content: center;
         align-items: center;
-        
+        height: 100%;
+        width: 84%;
+        position: absolute;
+
     }
+
+    .subslotControls{
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100%;
+        width: 15%;
+        position: absolute;
+        right: 0;
+
+    }
+
+    .projectColor{
+        width: 1%;
+        height: 100%;
+        position: absolute;
+        right: 0;
+        top: 0;
+
+    }
+
     .resize{
         resize: vertical;
-        overflow: auto;
+        overflow: hidden;
     }
 </style>
 
 <div id={'subslot-container-'+subslotId} 
-    data-slotId="{slotId}" data-taskId="{taskId}" data-height="{subslotHeight}" data-subslotId="{subslotId}"
+    data-slotId="{slotId}" data-taskId="{taskId}" data-height="{subslotHeight}" data-subslotId="{subslotId}" data-project="{JSON.stringify(project)}"
     class="{resizable === true ? 'subslot-container resize': 'subslot-container'}" style="height: {subslotHeight}px;" 
     on:mouseover="{handleResizeOption}" on:mouseup="{handleMouseUp}" on:mouseout="{handleResizeOption}" use:watchResize="{handleResize}">
 
     <!-- Tarea -->   
-    <div id="subslot-{subslotId}" class="subslot" data-name="{subslotName}" data-slotId="{slotId}"
-            data-id="{subslotId}" data-color="{projectColor}" data-taskId="{taskId}" draggable="true" 
+    <div id="subslot-{subslotId}" class="subslot" data-name="{subslotName}" data-slotId="{slotId}" data-project="{JSON.stringify(project)}"
+            data-id="{subslotId}" data-color="{project.color}" data-taskId="{taskId}" draggable="true" 
             on:dragstart={handleDragStart} on:dragend={handleDragEnd}>
             
             <!-- Texto -->
@@ -113,7 +130,7 @@
     </div>
 
      <!-- Color -->
-    <div style="background-color:{projectColor};" id="project-subslot-{subslotId}" data-slotId="{slotId}">
+    <div style="background-color:{project.color};" class="projectColor" id="project-subslot-{subslotId}" data-slotId="{slotId}">
     </div>
 </div>
 

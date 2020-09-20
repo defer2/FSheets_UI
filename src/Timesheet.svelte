@@ -175,7 +175,6 @@
         display: grid;
         grid-template-columns: 10% 10% 64%;
 		border-radius: 2px;
-
         text-align: center;
         background: #fff;
         height: 90px;
@@ -183,7 +182,7 @@
 	}
 
     .slots{
-        height: 600px;
+        background-color: white;
     }
 
     .ayer {

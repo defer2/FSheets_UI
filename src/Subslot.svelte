@@ -61,6 +61,7 @@
     .subslot-container{
         display: grid;
         grid-template-columns: 84% 15% 1%;
+        align-items: center;
         position: relative;
         border-top: 0.1em rgb(224, 224, 224) dashed;
         min-height: 35px;
@@ -103,6 +104,9 @@
         resize: vertical;
         overflow: hidden;
     }
+
+
+
 </style>
 
 <div id={'subslot-container-'+subslotId} 
@@ -125,7 +129,7 @@
      <div class="subslotControls" id="subslotControls-subslot-{subslotId}" data-slotId="{slotId}">
             <div class="deleteButton" data-slotId="{slotId}">
                 <Button id="btn-del-subslot-{slotId}-{subslotId}" data-taskId="{taskId}" data-subslotId="{subslotId}" data-slotId={slotId} 
-                on:click="{handleRemovesubslotTimesheet}" color='gray' text small icon='delete'/>
+                on:click="{handleRemovesubslotTimesheet}" color='gray' text small icon='remove_circle_outline'/>
             </div>
     </div>
 

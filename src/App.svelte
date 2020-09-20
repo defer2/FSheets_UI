@@ -1,11 +1,12 @@
 <script>
 	import Timesheet from "./Timesheet.svelte";
 	import Todolist from "./Todolist.svelte";	
+	import Header from "./Header.svelte";	
 </script>
 
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
 
-
+<header><Header/></header>
 <navbar></navbar>
 <main>
 		<aside></aside>
@@ -20,16 +21,18 @@
 
 
 <style>
-	main {
+
+	:global(body) { 
 		background-color: rgb(243, 240, 240);
 	}
 	content {
 		display: grid;
-		grid-template-columns: 55% 45%;
+		grid-template-columns: 55% 43%;
 		grid-column-gap: 50px;
 		margin: auto;
-		width: 90%;
-		padding-top: 100px;
+		width: 92%;
+		padding-top: 50px;
+		margin-bottom: 50px;
 	}
 
 	@media (min-width: 640px) {

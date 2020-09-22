@@ -77,7 +77,6 @@
         height: 100%;
         width: 84%;
         position: absolute;
-
     }
 
     .subslotControls{
@@ -92,12 +91,10 @@
     }
 
     .projectColor{
-        width: 1%;
-        height: 100%;
+        width: 3px;
         position: absolute;
         right: 0;
-        top: 0;
-
+        height: 100%;
     }
 
     .resize{

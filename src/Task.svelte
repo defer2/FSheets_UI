@@ -1,8 +1,10 @@
 <script>
-    import Checkbox from "smelte/src/components/Checkbox";
     import TextField from "smelte/src/components/Textfield";
     import Button from "smelte/src/components/Button";
+	import MenuProject from 'smelte/src/components/MenuProject';
     import { createEventDispatcher } from 'svelte';
+
+
 
     export let taskName;
     export let taskId;
@@ -10,11 +12,27 @@
     export let taskProject;
     export let taskDescription;
     export let taskStatus;
-
+    export let projects;
+    
     let taskEditable = false;
     let draggable = true;
-    let projectColor = taskProject.color;
+    let open = false;
+    let menuProjectTimer;
+    let selectedProject = "";
+    let projectColor = taskProject ? taskProject.color : '';
+    let items = projects;
 
+	const handleTaskChangeProject = (e) => {
+        if(selectedProject)
+            dispatch('taskChanged', {
+                taskId: taskId,
+                taskProjectId: selectedProject,
+                taskName: '',
+                taskColor: '',
+                taskStatus: '',
+                taskDescription: ''
+            });
+    };
 
     const dispatch = createEventDispatcher();
 
@@ -83,11 +101,6 @@
         });
     };
 
-    const handleOnBlurTask = (e) => {
-        let a = document.getElementById(e.target.id);
-        a.parentElement.parentElement.draggable=true;
-    };
-
     const handleEnter = (evt) => {
 			evt.target.addEventListener('keyup',(e)=>{
 				if (e.key === 'Enter' || e.keyCode === 13) {
@@ -97,58 +110,24 @@
 
     };
 
+    const handleProjectsMenuOpen = (e) => {
+        clearTimeout(menuProjectTimer);
+        menuProjectTimer = null;
+        open = true;
+    };
+
+    const handleProjectsMenuClose = (e) => {
+        const timeout = 550;
+        const closeMenu = () =>{
+            open = false;
+        };
+        menuProjectTimer = setTimeout(closeMenu, timeout);
+    };
+
+
+
+
 </script>
-
-<style>
-    .task-container{
-        display: grid;
-        grid-template-columns: 10% 74% 14% 2%;
-        position: relative;
-        border-top: 0.1em rgb(224, 224, 224) dashed;
-        height: 60px;
-    }
-
-    .taskControls{
-        display: grid;
-        grid-template-columns: 1fr 1fr 1fr;
-        justify-content: center;
-        align-items: center;
-        margin-right: 15px;
-
-    }
-
-    .properties{
-        margin-left: 5px;
-        display: flex;
-        justify-content: left;
-        align-items: center;
-    }
-
-    .checkbox{
-        display: flex;
-        margin-left: 10px;
-        justify-content: center;
-        align-items: center;
-    }
-
-    .editButton{
-        margin-left: 5px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
-
-    .task{
-        display: flex;
-        justify-content: center;
-        align-items: center;
-    }
-
-    .projectColor{
-        margin-left: 7px;
-        width: 5px;
-    }
-</style>
 
 <div class="task-container">
     <!-- Checkbox -->
@@ -192,13 +171,84 @@
                 on:click="{handleTaskEditable}" />
         </div>
         <div class="deleteButton"/>
-        <div class="properties"> 
-            <Button id="btn-prop-task-{taskId}" icon="more_vert" text small/>
+        <div class="properties">    
+           
         </div>    
     </div>
 
+    <!-- <li><a href="#" 
+        onmouseover="mopen('m1')" 
+        onmouseout="mclosetime()">Home</a>
+        <div id="m1" 
+            onmouseover="mcancelclosetime()" 
+            onmouseout="mclosetime()">
+        <a href="#">HTML/CSS</a>
+        <a href="#">DHTML Menu</a>
+        <a href="#">JavaScript</a>
+        </div> -->
+
+
      <!-- Color -->
-    <div style="background-color:{projectColor};" class="projectColor" id="project-task-{taskId}" >
+    <div style="background-color:{projectColor};" class="projectColor" id="project-task-{taskId}" on:mouseout={handleProjectsMenuClose} on:mouseover={handleProjectsMenuOpen}>
+        <MenuProject bind:open {items} bind:value={selectedProject} itemColor={projectColor} on:click={handleTaskChangeProject} on:mouseover={handleProjectsMenuOpen}>
+            <div slot="activator">
+                <div style='width:15px' id="btn-prop-task-{taskId}" >&nbsp;</div>
+            </div>
+        </MenuProject>
     </div>
 </div>
+
+<style>
+    .task-container{
+        display: grid;
+        grid-template-columns: 10% 74% 15% 1%;
+        position: relative;
+        border-top: 0.1em rgb(224, 224, 224) dashed;
+        height: 60px;
+    }
+
+    .taskControls{
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        justify-content: center;
+        align-items: center;
+        margin-right: 15px;
+
+    }
+
+    .properties{
+        margin-left: 5px;
+        display: flex;
+        justify-content: left;
+        align-items: center;
+    }
+
+    .checkbox{
+        display: flex;
+        margin-left: 10px;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .editButton{
+        margin-left: 5px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .task{
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .projectColor{
+        margin-left: 2px;
+        width: 3px;
+    }
+</style>
+
+
+
 

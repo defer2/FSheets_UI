@@ -5,7 +5,8 @@
 
 
 	let showRemoveTask = false;
-
+	let projectsMenu = [];
+	let projects;
 	/*HANDLE Functions*/
 	const handleTaskDragStart = () => {showRemoveTask=true;};
 	const handleTaskDragEnd = () => {showRemoveTask=false;};
@@ -44,20 +45,20 @@
 		showRemoveTask=false;
 	};
 
+
+
 	/*API Functions*/
+	async function getProjectsTAPI() {
+		let url = 'http://localhost:5010/view';
 
+		const projects = await fetch(url)
+		.then(response => response)
+		.then(data => {
+			return data.json();
+		})
+		.catch(error => console.log('error', error));
 
-	async function getProjectsTAPI(projectId) {
-        let url = 'http://localhost:5010/view';        
-        
-        const res = await fetch(url);
-		const projects = await res.json();
-
-		if (res.ok) {
-			return projects;
-		} else {
-			throw new Error(project);
-		}
+		return projects;
 	}
 	
 	async function getTasksTAPI() {
@@ -85,6 +86,17 @@
 
 			tasks[i].project = project[0];
 		}
+
+		projects = await getProjectsTAPI();
+		projectsMenu = [];
+
+		Array.from(projects).map(project => {
+			projectsMenu.push({
+				value: project.id,
+				text: project.name,
+				color: project.color
+			})
+		})
 
 		return tasks;
 	}
@@ -128,7 +140,7 @@
 		let parameterDescription='description='+task.description;
 		let parameterProjectId='project_id='+task.projectId;
 
-		url = url+'?'+parameterName+'&'+parameterStatus+'&'+parameterDescription; //+'&'+parameterProjectId;
+		url = url+'?'+parameterName+'&'+parameterStatus+'&'+parameterDescription+'&'+parameterProjectId;
 
 		var requestOptions = {
 			method: 'PUT',
@@ -142,6 +154,11 @@
 
 		tasks = getTasksTAPI();
 	}
+
+
+
+	/*MISC Functions*/
+
 
 	let tasks = getTasksTAPI();
 </script>
@@ -162,7 +179,7 @@
 			{:then oTasks}
 				{#each oTasks as oTask}
 					<Task taskId={oTask.id} taskName={oTask.name} taskProject={oTask.project} taskStatus={oTask.status} taskDescription={oTask.description}
-						on:taskDragStart={handleTaskDragStart} on:taskDragEnd={handleTaskDragEnd} on:taskChanged={handleTaskChanged} />
+						on:taskDragStart={handleTaskDragStart} on:taskDragEnd={handleTaskDragEnd} on:taskChanged={handleTaskChanged} projects="{projectsMenu}" />
 				{/each}
 			{:catch error}
 				<p style="color: red">{error.message}</p>

@@ -76,11 +76,11 @@
 
             dispatch('taskChanged', {
                 taskId: divParent.getAttribute('data-id'),
-                taskName: divParent.getAttribute('data-name'),
-                taskColor: divParent.getAttribute('data-color'),
+                taskName: '',
+                taskColor: '',
                 taskStatus: taskStatus,
-                taskDescription: divParent.getAttribute('data-description'),
-                taskProjectId: divParent.getAttribute('data-projectId'),
+                taskDescription: '',
+                taskProjectId: '',
             });
 
         }catch(error){
@@ -94,10 +94,10 @@
         dispatch('taskChanged', {
             taskId: document.getElementById(e.target.id).getAttribute('data-id'),
             taskName: e.target.value,
-            taskColor: document.getElementById(e.target.id).getAttribute('data-color'),
-            taskStatus: document.getElementById(e.target.id).getAttribute('data-status'),
-            taskDescription: document.getElementById(e.target.id).getAttribute('data-description'),
-            taskProjectId: document.getElementById(e.target.id).getAttribute('data-projectId'),
+            taskColor: '',
+            taskStatus: '',
+            taskDescription: '',
+            taskProjectId: '',
         });
     };
 
@@ -175,18 +175,6 @@
            
         </div>    
     </div>
-
-    <!-- <li><a href="#" 
-        onmouseover="mopen('m1')" 
-        onmouseout="mclosetime()">Home</a>
-        <div id="m1" 
-            onmouseover="mcancelclosetime()" 
-            onmouseout="mclosetime()">
-        <a href="#">HTML/CSS</a>
-        <a href="#">DHTML Menu</a>
-        <a href="#">JavaScript</a>
-        </div> -->
-
 
      <!-- Color -->
     <div style="background-color:{projectColor};" class="projectColor" id="project-task-{taskId}" on:mouseout={handleProjectsMenuClose} on:mouseover={handleProjectsMenuOpen}>

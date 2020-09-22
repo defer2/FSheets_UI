@@ -113,11 +113,11 @@
 
     <!-- Tarea -->   
     <div id="subslot-{subslotId}" class="subslot" data-name="{subslotName}" data-slotId="{slotId}" data-project="{JSON.stringify(project)}"
-            data-id="{subslotId}" data-color="{project.color}" data-taskId="{taskId}" draggable="true" 
+            data-id="{subslotId}" data-color="{project.color}" data-taskId="{taskId}"
             on:dragstart={handleDragStart} on:dragend={handleDragEnd}>
             
             <!-- Texto -->
-            <div ondrop="return false;" style='background-color:white' data-slotId="{slotId}">
+            <div ondrop="return false;" data-slotId="{slotId}">
                 {subslotName}
             </div>
     </div>

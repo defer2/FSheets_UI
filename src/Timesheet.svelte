@@ -244,9 +244,6 @@
 
     <div class="container">
         <div class="timesheet-header" style='background-color:{timesheetColor};'>
-            <div class="semana">
-                <Button icon="first_page" text light />
-            </div>
             <div class="ayer">
                 <Button on:click={(e) => handleYesterdayButton(e)} icon="chevron_left" text light />               
             </div>
@@ -307,7 +304,7 @@
 
 	.timesheet-header {
         display: grid;
-        grid-template-columns: 10% 10% 60% 10% 10%;
+        grid-template-columns: 20% 60% 10% 10%;
 		border-radius: 2px;
         text-align: center;
         height: 90px;
@@ -322,12 +319,6 @@
         display: flex;
         justify-content: center;
         align-items: center;    
-        height: 100%;
-    }
-    .semana {
-        display: flex;
-        justify-content: center;
-        align-items: center;   
         height: 100%;
     }
 

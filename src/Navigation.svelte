@@ -15,14 +15,24 @@
   const handleShowHome = () => {
     dispatch('handleMenu', {
       showHome: true,
-      showProjects: false
+      showProjects: false,
+      showExtendedView: false
     }); 
   };
 
   const handleShowProjects = () => {
     dispatch('handleMenu', {
       showHome: false,
-      showProjects: true
+      showProjects: true,
+      showExtendedView: false
+    }); 
+  };
+
+  const handleShowExtendedView = () => {
+    dispatch('handleMenu', {
+      showHome: false,
+      showProjects: false,
+      showExtendedView: true
     }); 
   };
 
@@ -31,7 +41,8 @@
   ];
 
   const menuHome = [
-    { text: 'Home', to: handleShowHome }
+    { text: 'Home', to: handleShowHome },
+    { text: 'Extended view', to: handleShowExtendedView }
   ];
 
   const menuProfile = [

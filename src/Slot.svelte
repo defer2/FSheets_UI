@@ -199,7 +199,7 @@
 
 <div>
     <div class="slot" id="slot-{slotId}" data-slotId="{slotId}" data-startdate={slotStartDate} ondragover="return false;" on:drop={event => handleSubslotAdded(event,slotId)}>
-        <div class="hour" data-slotId="{slotId}"><h5 data-slotId="{slotId}">{hour}</h5></div>
+        <div class="hour" data-slotId="{slotId}"><h6 data-slotId="{slotId}"><strong>{hour}</strong></h6></div>
         <div class="subslots" id="subslots-of-slot-{slotId}" data-slotId="{slotId}">
             {#each subslots as subslot}
                 <div class="slot-subslot" data-slotId="{slotId}">

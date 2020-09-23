@@ -4,18 +4,21 @@
 	import Todolist from "./Todolist.svelte";	
 	import Header from "./Header.svelte";	
 	import Navigation from "./Navigation.svelte";
+	import TimesheetsExtendedView from "./TimesheetsExtendedView.svelte";
 
 	let showNav;
 	const handleShowNavigationDrawer = (event) =>{
 		showNav = event.detail.showNav;
 	};
 
-	let showHome = true;
+	let showHome = false;
 	let showProjects = false;
+	let showExtendedView = true;
 
 	const handleMenu = (event) =>{
 		showProjects = event.detail.showProjects;
 		showHome = event.detail.showHome;
+		showExtendedView = event.detail.showExtendedView;
 	};
 	
 </script>
@@ -32,22 +35,30 @@
 			<Navigation on:handleMenu={handleMenu} showNav={true} showNavMobile={true} elevation="{true}" persistent="{false}" right="{true}" ></Navigation>   
 		{/if}
 	</aside>
-	<content>
 		{#if showProjects}
+		<content>
 			<section id='projects'>
 				<Projects/>
 			</section>
-		{/if}
-		{#if showHome}
+		</content>
+
+		{:else if showHome}
+		<content>
+
 			<section id='todolist'>
 				<Todolist/>
 			</section>
 			<section id='timesheet' style='margin-right:40px'>
 				<Timesheet/>
 			</section>
+		</content>
+
+		{:else if showExtendedView}
+		<section id='timesheet' style='margin-right:40px'>
+			<TimesheetsExtendedView/>
+		</section>
 		{/if}
 
-	</content>
 </main>
 <footer></footer>
 

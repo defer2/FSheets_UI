@@ -14,7 +14,7 @@
 		
         newProject.name = event.detail.projectName;
         newProject.id = event.detail.projectId;
-		newProject.color = event.detail.color;
+		newProject.color = event.detail.projectColor;
 		newProject.status = event.detail.projectStatus;
 
 		updateProjectTAPI(newProject);

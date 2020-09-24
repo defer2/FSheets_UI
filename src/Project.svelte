@@ -61,8 +61,8 @@
         dispatch('projectChanged', {
             projectId: document.getElementById(e.target.id).getAttribute('data-id'),
             projectName: e.target.value,
-            projectColor: document.getElementById(e.target.id).getAttribute('data-color'),
-            projectStatus: document.getElementById(e.target.id).getAttribute('data-status')      
+            projectColor: '',
+            projectStatus: ''      
         });
     };
 
@@ -78,8 +78,8 @@
 
             dispatch('projectChanged', {
                 projectId: divParent.getAttribute('data-id'),
-                projectName: divParent.getAttribute('data-name'),
-                projectColor: divParent.getAttribute('data-color'),
+                projectName: '',
+                projectColor: '',
                 projectStatus: projectStatus
             });
         }catch(error){

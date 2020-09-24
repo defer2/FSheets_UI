@@ -12,6 +12,9 @@
     let timesheetTitle;
     let timesheetSubtitle;
     let timesheetColor;
+    let timesheetSynced = true;
+    let timsheetSendButtonColor = 'alert';
+    timesheetSynced ? timsheetSendButtonColor = 'success' : timsheetSendButtonColor = 'alert';
     setTimesheetDaySettings(date);
 
 
@@ -257,17 +260,18 @@
             <div class="ayer">
                 <Button on:click={(e) => handleYesterdayButton(e)} icon="chevron_left" text light />               
             </div>
-
             <div class="titlebox">
-                <div class="title">
-                    <h5>{timesheetTitle}</h5>
-                </div>
-                <div class="sendButton">
-                    <Button on:click={() => handlePrintTimesheet()} icon="cloud_upload" light flat text color=alert/>
-                </div>
-                <div class="subtitle-2 subtitle">
-                    {timesheetSubtitle}
-                </div>
+                    <div class="sendButton">
+                        <Button on:click={() => handlePrintTimesheet()} icon="cloud_upload" light flat text color={timsheetSendButtonColor}/>
+                    </div>
+                    <div class="titleWrapper">
+                        <div class="title">
+                            <h5>{timesheetTitle}</h5>
+                        </div>
+                        <div class="subtitle-2 subtitle">
+                            {timesheetSubtitle}
+                        </div>
+                    </div>
             </div>
             {#if past}
                 {#if tooPast}
@@ -324,9 +328,9 @@
         display: grid;
         grid-template-columns: 20% 60% 10% 10%;
 		border-radius: 2px;
-        text-align: center;
         height: 90px;
         align-items: center;
+        justify-items: center;
 	}
 
     .slots{
@@ -353,31 +357,47 @@
         height: 100%;
     }
 	.titlebox {
-        display: grid;
-        grid-template-rows: 33.3% 33.3% 33.3%;
+        margin-top: 20px;
     }
+
     
-    .title{
-        padding:16px 0px 16px 0px;
-        grid-column: 1 / 2;
+    .titleWrapper{
+        display: grid;
+        grid-template-rows: 2;
+        padding:10px 0px 20px 0px;
+        grid-column: 2;
         grid-row: 1;
-        justify-self: right;
-        align-self: bottom;
+        justify-self: start;
+        align-self: flex-start;
+    }
+
+    .title{
+        /* padding:10px 0px 20px 0px; */
+        grid-column: 2;
+        grid-row: 1;
+        justify-self: center;
+        align-self: center;
+        float: left;
+
+
     }
 
     .sendButton{
-        grid-column: 2 / 3;
-        grid-row: 1 / 1;
+        grid-column: 1 / 2;
+        grid-row: 1;
         align-self: top;
-        padding:5px 0px 5px 0px;
+        justify-self: right;
+        float: left;
+
     }
 
     .subtitle{
         color:gray;
         text-transform:lowercase;
-        grid-column: 1 / 3;
+        grid-column: 2;
         grid-row: 2 ;
-        align-self: bottom;
+        align-self: flex-end;
+        justify-self: center;
     }
 
 </style>

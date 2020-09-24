@@ -3,38 +3,26 @@
 	import Projects from "./Projects.svelte";
 	import Todolist from "./Todolist.svelte";	
 	import Header from "./Header.svelte";	
-	import Navigation from "./Navigation.svelte";
 	import TimesheetsExtendedView from "./TimesheetsExtendedView.svelte";
 
-	let showNav;
-	const handleShowNavigationDrawer = (event) =>{
-		showNav = event.detail.showNav;
-	};
-
-	let showHome = false;
+	let showHome = true;
 	let showProjects = false;
-	let showExtendedView = true;
+	let showExtendedView = false;
 
 	const handleMenu = (event) =>{
 		showProjects = event.detail.showProjects;
 		showHome = event.detail.showHome;
 		showExtendedView = event.detail.showExtendedView;
 	};
-	
 </script>
 
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
 
 <header>
-	<Header on:showNavigationDrawer={handleShowNavigationDrawer} />
+	<Header on:handleMenu={handleMenu} />
 </header>
-<navbar></navbar>
 <main>
-	<aside>
-		{#if showNav}
-			<Navigation on:handleMenu={handleMenu} showNav={true} showNavMobile={true} elevation="{true}" persistent="{false}" right="{true}" ></Navigation>   
-		{/if}
-	</aside>
+
 		{#if showProjects}
 		<content>
 			<section id='projects'>
@@ -44,7 +32,6 @@
 
 		{:else if showHome}
 		<content>
-
 			<section id='todolist'>
 				<Todolist/>
 			</section>
@@ -83,8 +70,6 @@
 	header {
 		margin-bottom: 50px;
 	}
-
-
 
 	@media (min-width: 640px) {
 		content {

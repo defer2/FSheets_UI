@@ -192,9 +192,6 @@
         justify-content: center;
         align-items: center;
     }
-
-
-
 </style>
 
 <div>
@@ -204,7 +201,7 @@
             {#each subslots as subslot}
                 <div class="slot-subslot" data-slotId="{slotId}">
                     <Subslot on:subslotsChangeSize={handleSubslotChangeSize} on:removesubslotTimesheetForSlot="{handleRemoveSubslotTimesheet}" 
-                    on:subslotDragStart={handlesubslotDragStart} on:subslotDragEnd={handlesubslotDragEnd}
+                        on:subslotDragStart={handlesubslotDragStart} on:subslotDragEnd={handlesubslotDragEnd}
                         subslotName={subslot.task_name} project="{subslot.project}" subslotId="{subslot.id}" slotId="{slotId}" taskId="{subslot.task_id}"
                         subslotStartDate={subslot.start_date} subslotEndDate={subslot.end_date} subslotHeight="{subslot.height}" />
                 </div>

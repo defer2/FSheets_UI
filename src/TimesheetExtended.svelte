@@ -8,13 +8,10 @@
     export let lastTimesheetDate;
 
     timesheetToday.date === lastTimesheetDate ? extendedView = true : extendedView = false;
-    console.log(timesheetToday.date);
-    console.log(lastTimesheetDate);
-    console.log(extendedView);
-
     let timesheetTitle = timesheetToday.date;
-    console.log(timesheetTitle);
-    setTimesheetTitle(timesheetToday.date);
+    let timesheetSubtitle;
+
+    setTimesheetDaySettings(timesheetToday.date);
   
 
     /* HANDLE functions*/
@@ -34,10 +31,12 @@
     }
 
     /* MISC functions */
-    function setTimesheetTitle(dDate){
+    function setTimesheetDaySettings(dDate){
         const myDate = new Date(dDate.replace( /(\d{4})-(\d{2})-(\d{2})/, "$1/$2/$3"));
         const today = new Date();
         const yesterday = new Date(getYesterdayDate());
+        const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        timesheetSubtitle = days[myDate.getDay()];
 
         if(myDate.getDate() === today.getDate()){
             timesheetTitle = 'Today';
@@ -60,7 +59,8 @@
         <div class="timesheet-header" style='background-color:{timesheetColor};'>
             <div class="title" style='grid-column-start:span 2;'>
                 <h5>{timesheetTitle}</h5>
-        </div>   
+                <center><span class="subtitle-2" style="color:gray;text-transform:lowercase;">{timesheetSubtitle}</span></center>
+            </div>   
         </div>
         <div class="slots">
             {#await timesheetToday}

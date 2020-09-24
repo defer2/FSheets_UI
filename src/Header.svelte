@@ -3,22 +3,33 @@
 	import Menu from 'smelte/src/components/Menu';
 	import { createEventDispatcher } from 'svelte'
 	const dispatch = createEventDispatcher();
-	
+	import Navigation from "./Navigation.svelte";
 
 	let showNav = false;
+	let menuProjectTimer;
+	
 
-	const showNavigationDrawer = () => {
-		showNav = !showNav
-
-		dispatch('showNavigationDrawer', {
-			showNav: showNav
+	const handleMenu = (event) =>{
+		dispatch('handleMenu', {
+			showProjects: event.detail.showProjects,
+			showHome: event.detail.showHome,
+			showExtendedView: event.detail.showExtendedView,
 		}); 
 	};
-	   
+	
+	const handleNavOpen = (e) => {
+        clearTimeout(menuProjectTimer);
+        menuProjectTimer = null;
+        showNav = true;
+    };
 
-  const items = [
-		{ value: 1, text: 'Proyectos' }
-	];
+    const handleNavClose = (e) => {
+        const timeout = 550;
+        const closeMenu = () =>{
+            showNav = false;
+        };
+        menuProjectTimer = setTimeout(closeMenu, timeout);
+    };
 </script>
 
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
@@ -26,9 +37,14 @@
 <div class="main-header">
 	<div class="title" />
 	<div class="options">
-		<Button on:click={showNavigationDrawer} icon="menu" flat small color="none" />
+		<Button on:click={() => showNav = !showNav} icon="menu" flat small color="none" />
 	</div>
 </div>	
+<aside on:mouseout={handleNavClose} on:mouseover={handleNavOpen}>
+	{#if showNav}
+		<Navigation on:handleMenu={handleMenu} showNav={true} showNavMobile={true} elevation="{true}" persistent="{false}" right="{true}" ></Navigation>   
+	{/if}
+</aside>
 
 
 <style>
@@ -43,7 +59,7 @@
 		position: fixed;
 		top: 0;
 	}
-
+	
 	.options{
 		align-items: center;
 	}

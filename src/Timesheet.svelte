@@ -6,12 +6,13 @@
 
     let date=dateToShortFormat(getTodayDate());
     let timesheetToday = getTimesheetTAPI(date);
-    let timesheetTitle;
     let daysCounter = 0;
     let past = false;
     let tooPast = false;
-    let timesheetColor = '';
-    setTimesheetTitle(date);
+    let timesheetTitle;
+    let timesheetSubtitle;
+    let timesheetColor;
+    setTimesheetDaySettings(date);
 
 
     
@@ -177,7 +178,8 @@
         date = dateToShortFormat(oneDate);
         timesheetToday = getTimesheetTAPI(dateToShortFormat(oneDate))
         timesheetToday = timesheetToday
-        setTimesheetTitle(dateToShortFormat(oneDate));
+
+        setTimesheetDaySettings(dateToShortFormat(oneDate));
     }
 
     const handleTomorrowButton = (e) => {
@@ -188,14 +190,20 @@
         date = dateToShortFormat(oneDate);
         timesheetToday = getTimesheetTAPI(dateToShortFormat(oneDate))
         timesheetToday = timesheetToday
-        setTimesheetTitle(dateToShortFormat(oneDate));
+        
+        setTimesheetDaySettings(dateToShortFormat(oneDate));
     }
 
     const handleTodayButton = (e) => {
         const date=dateToShortFormat(getTodayDate());
         timesheetToday = getTimesheetTAPI(date);
-        setTimesheetTitle(date);
+        
+        setTimesheetDaySettings(dateToShortFormat(oneDate));
     }
+
+    const handlePrintTimesheet = () => {
+        console.log(timesheetToday);
+    };
 
     /* MISC functions */
 
@@ -216,10 +224,12 @@
         return yesterday.setDate(yesterday.getDate() - 1);
     }
 
-    function setTimesheetTitle(dDate){
+    function setTimesheetDaySettings(dDate){
         const myDate = new Date(dDate.replace( /(\d{4})-(\d{2})-(\d{2})/, "$1/$2/$3"));
         const today = new Date();
         const yesterday = new Date(getYesterdayDate());
+        const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        timesheetSubtitle = days[myDate.getDay()];
 
         if(myDate.getDate() === today.getDate()){
             timesheetTitle = 'Today';
@@ -248,8 +258,16 @@
                 <Button on:click={(e) => handleYesterdayButton(e)} icon="chevron_left" text light />               
             </div>
 
-            <div class="title">
-                <h5>{timesheetTitle}</h5>
+            <div class="titlebox">
+                <div class="title">
+                    <h5>{timesheetTitle}</h5>
+                </div>
+                <div class="sendButton">
+                    <Button on:click={() => handlePrintTimesheet()} icon="cloud_upload" light flat text color=alert/>
+                </div>
+                <div class="subtitle-2 subtitle">
+                    {timesheetSubtitle}
+                </div>
             </div>
             {#if past}
                 {#if tooPast}
@@ -334,8 +352,32 @@
         align-items: center;   
         height: 100%;
     }
-	.title {
-        padding: 16px;
-	}
+	.titlebox {
+        display: grid;
+        grid-template-rows: 33.3% 33.3% 33.3%;
+    }
+    
+    .title{
+        padding:16px 0px 16px 0px;
+        grid-column: 1 / 2;
+        grid-row: 1;
+        justify-self: right;
+        align-self: bottom;
+    }
+
+    .sendButton{
+        grid-column: 2 / 3;
+        grid-row: 1 / 1;
+        align-self: top;
+        padding:5px 0px 5px 0px;
+    }
+
+    .subtitle{
+        color:gray;
+        text-transform:lowercase;
+        grid-column: 1 / 3;
+        grid-row: 2 ;
+        align-self: bottom;
+    }
 
 </style>

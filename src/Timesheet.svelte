@@ -1,25 +1,22 @@
 <script>
     import Slot from "./Slot.svelte";	
     import Button from "smelte/src/components/Button";
-    import { tick } from 'svelte';
 
 
     let date=dateToShortFormat(getTodayDate());
+    let timsheetSendButtonColor = '';
+    let ppm_synced = 0;
     let timesheetToday = getTimesheetTAPI(date);
+    
     let daysCounter = 0;
     let past = false;
     let tooPast = false;
     let timesheetTitle;
     let timesheetSubtitle;
     let timesheetColor;
-    let timesheetSynced = true;
-    let timsheetSendButtonColor = 'alert';
-    timesheetSynced ? timsheetSendButtonColor = 'success' : timsheetSendButtonColor = 'alert';
     setTimesheetDaySettings(date);
 
 
-    
-    
     /* API functions*/
 
     async function createTimesheetTAPI(date) {
@@ -46,21 +43,25 @@
         url = url+'?'+dateParameter;
         let timesheet = await fetch(url)
             .then(response => response)
-            .then(data => {
-                return data.json();
+            .then(data => data.json())
+            .then(timesheet => {  
+                return timesheet;
             })
             .catch(error => console.log('error', error));
+
 
         if(timesheet.length == 0){
             await createTimesheetTAPI(date);
             
             timesheet = await fetch(url)
             .then(response => response)
-            .then(data => {
-                return data.json();
+            .then(data => data.json())
+            .then(timesheet => {
+                return timesheet;
             })
             .catch(error => console.log('error', error));
         }
+
 
         let Slots = timesheet[0].Slots;
 
@@ -210,6 +211,7 @@
 
     /* MISC functions */
 
+    
     function dateToShortFormat(anotherDate){
         const dd = String(anotherDate.getDate()).padStart(2, '0');
         const mm = String(anotherDate.getMonth() + 1).padStart(2, '0'); //January is 0!
@@ -252,6 +254,8 @@
 
         (myDate.getDay() == 6 || myDate.getDay() == 0) ? timesheetColor = 'rgb(236, 236, 236)' : timesheetColor = 'white';
     }
+
+
 </script>
 
 
@@ -262,8 +266,19 @@
             </div>
             <div class="titlebox">
                     <div class="sendButton">
-                        <Button on:click={() => handlePrintTimesheet()} icon="cloud_upload" light flat text color={timsheetSendButtonColor}/>
-                    </div>
+                        {#await timesheetToday}
+                            <Button on:click={() => handlePrintTimesheet()} icon="cloud_upload" light flat text color='gray'/>
+                        {:then timesheetToday}
+                            {#if timesheetToday[0].ppm_synced == 1}
+                                <Button on:click={() => handlePrintTimesheet()} icon="cloud_upload" light flat text color='success'/>
+                            {:else}
+                                <Button on:click={() => handlePrintTimesheet()} icon="cloud_upload" light flat text color='alert'/>
+                            {/if}
+                        {:catch error}
+                            <Button on:click={() => handlePrintTimesheet()} icon="cloud_upload" light flat text color='gray'/>
+                        {/await}	
+
+                        </div>
                     <div class="titleWrapper">
                         <div class="title">
                             <h5>{timesheetTitle}</h5>
@@ -302,8 +317,8 @@
 
         {#await timesheetToday}
             <div/>
-        {:then oTimesheet}
-            {#each oTimesheet[0].Slots as slot}
+        {:then timesheetToday}
+            {#each timesheetToday[0].Slots as slot}
                 {#if new Date(slot.hour).getHours() > 8 && new Date(slot.hour).getHours() < 19}
                     <Slot slotId="{slot.id}" hour="{slot.hour}" subslots={slot.Subslots}
                         on:subslotAdded={handleSubslotAdded} on:subslotDragStart={handleSubslotDragStart} on:subslotsChangeSize={handleSubslotChangeSize}

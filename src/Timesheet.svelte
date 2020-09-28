@@ -2,10 +2,8 @@
     import Slot from "./Slot.svelte";	
     import Button from "smelte/src/components/Button";
 
-
+    const resourceName = 'fernando.defalco'
     let date=dateToShortFormat(getTodayDate());
-    let timsheetSendButtonColor = '';
-    let ppm_synced = 0;
     let timesheetToday = getTimesheetTAPI(date);
     
     let daysCounter = 0;
@@ -14,13 +12,14 @@
     let timesheetTitle;
     let timesheetSubtitle;
     let timesheetColor;
+    let ppm_synced = false;
     setTimesheetDaySettings(date);
 
 
     /* API functions*/
 
     async function createTimesheetTAPI(date) {
-		let url = 'http://localhost:5012/timesheets';
+		let url = 'http://192.168.0.50:5012/timesheets';
         const dateParameter = 'date='+date;
 
         url = url+'?'+dateParameter;
@@ -37,7 +36,7 @@
 
 
     async function getTimesheetTAPI(date){ 
-        let url = 'http://localhost:5012/timesheets/dates';        
+        let url = 'http://192.168.0.50:5012/timesheets/dates';        
         const dateParameter = 'date='+date;
         
         url = url+'?'+dateParameter;
@@ -62,7 +61,6 @@
             .catch(error => console.log('error', error));
         }
 
-
         let Slots = timesheet[0].Slots;
 
         for(let i = 0; i < Slots.length ; i++){
@@ -72,7 +70,7 @@
                 let subslot = subslots[j];
 
                 const taskId = subslot.task_id;
-                let url = 'http://localhost:5011/view/project';        
+                let url = 'http://192.168.0.50:5011/view/project';        
                 const parameterTaskId = taskId;
                 
                 url = url+'/'+parameterTaskId;
@@ -91,24 +89,26 @@
     }
   
     async function deleteSubslotTAPI(subslotId) {
-		const url = 'http://localhost:5012/subslots/'+subslotId;
+		const url = 'http://192.168.0.50:5012/subslots/'+subslotId;
 
 		var requestOptions = {
 			method: 'DELETE',
 			redirect: 'follow'
 		};
 
-		await fetch(url, requestOptions)
+		const res = await fetch(url, requestOptions)
             .then(response => response)
             .then(result => result)
             .catch(error => console.log('error', error));
+
+        if(res.ok) ppm_synced = false;
 
         timesheetToday = getTimesheetTAPI(date);
         timesheetToday = timesheetToday
 	}	
 
     async function createSubslotTAPI(slotId, taskId, taskName) {
-        let url = 'http://localhost:5012/subslots/quick';
+        let url = 'http://192.168.0.50:5012/subslots/quick';
         
         const parameterSlotId='slot_id='+slotId;
 		const parameterTaskId='task_id='+taskId;
@@ -126,12 +126,15 @@
 		.then(result => result)
 		.catch(error => console.log('error', error));
 
+        if(res.ok) ppm_synced = false;
+
         timesheetToday = getTimesheetTAPI(date);
         timesheetToday = timesheetToday
     }    
+
     
     async function updateSubslotTAPI(subslotId, slotId, startDate, endDate) {
-        let url = 'http://localhost:5012/subslots';
+        let url = 'http://192.168.0.50:5012/subslots';
         
         const parameterSubslotId='/'+subslotId;
         const parameterSlotId='slot_id='+slotId;
@@ -149,10 +152,34 @@
 		const res = await fetch(url, requestOptions)
 		.then(response => response)
 		.then(result => result)
-		.catch(error => console.log('error', error));
+        .catch(error => console.log('error', error));
+        
+        if(res.ok) ppm_synced = false;
 
         timesheetToday = getTimesheetTAPI(date);
         timesheetToday = timesheetToday
+    }
+
+    async function handleSubmitTimesheet(){
+        timesheetToday.then(async (result) => {
+            let url = 'http://192.168.0.50:5013/timesheet';
+            result[0].resource_name = resourceName;
+
+            var requestOptions = {
+                method: 'POST',
+                redirect: 'follow',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },  
+                body: JSON.stringify(result[0])
+            };
+
+        	const res = await fetch(url, requestOptions)
+            .catch(error => console.log('error', error));
+
+            if(res.ok) ppm_synced = true;
+        })
     }
 
     /* HANDLE functions*/
@@ -204,10 +231,6 @@
         
         setTimesheetDaySettings(dateToShortFormat(oneDate));
     }
-
-    const handlePrintTimesheet = () => {
-        console.log(timesheetToday);
-    };
 
     /* MISC functions */
 
@@ -267,15 +290,17 @@
             <div class="titlebox">
                     <div class="sendButton">
                         {#await timesheetToday}
-                            <Button on:click={() => handlePrintTimesheet()} icon="cloud_upload" light flat text color='gray'/>
+                            <Button on:click={() => handleSubmitTimesheet()} icon="cloud_upload" light flat text color='gray'/>
                         {:then timesheetToday}
-                            {#if timesheetToday[0].ppm_synced == 1}
-                                <Button on:click={() => handlePrintTimesheet()} icon="cloud_upload" light flat text color='success'/>
+                            {#if timesheetToday[0].ppm_synced == 1 && timesheetToday[0].ppm_last_sync || ppm_synced}
+                                <Button on:click={() => handleSubmitTimesheet()} icon="cloud_upload" light flat text color='success'/>
+                            {:else if timesheetToday[0].ppm_synced == 1 && !timesheetToday[0].ppm_last_sync}
+                                <Button on:click={() => handleSubmitTimesheet()} icon="cloud_upload" light flat text color='alert'/>
                             {:else}
-                                <Button on:click={() => handlePrintTimesheet()} icon="cloud_upload" light flat text color='alert'/>
+                                <Button on:click={() => handleSubmitTimesheet()} icon="cloud_upload" light flat text color='gray'/>
                             {/if}
                         {:catch error}
-                            <Button on:click={() => handlePrintTimesheet()} icon="cloud_upload" light flat text color='gray'/>
+                            <Button on:click={() => handleSubmitTimesheet()} icon="cloud_upload" light flat text color='gray'/>
                         {/await}	
 
                         </div>

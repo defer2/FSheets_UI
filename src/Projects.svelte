@@ -3,8 +3,6 @@
     import Project from "./Project.svelte";
 
     const handleProjectAdded = (event) =>{
-        console.log(event.detail.projectName);
-		console.log(event.detail.projectColor);
 		createProjectTAPI(event.detail.projectName, event.detail.projectColor);
 	};
 
@@ -16,6 +14,7 @@
         newProject.id = event.detail.projectId;
 		newProject.color = event.detail.projectColor;
 		newProject.status = event.detail.projectStatus;
+		newProject.ppm_project_id = event.detail.projectPPMId;
 
 		updateProjectTAPI(newProject);
     };
@@ -27,13 +26,14 @@
 		newProject.status = '';
         newProject.id = event.detail.projectId;
 		newProject.color = event.detail.projectColor;
+		newProject.ppm_project_id = '';
 
 		updateProjectTAPI(newProject);
     };
     
 
     async function getProjectsTAPI() {
-		let url = 'http://localhost:5010/view';
+		let url = 'http://192.168.0.50:5010/view';
 
 		const projects = await fetch(url)
 		.then(response => response)
@@ -46,14 +46,13 @@
 	}
 
 	async function createProjectTAPI(projectName, projectColor) {
-        let url = 'http://localhost:5010/create';
+        let url = 'http://192.168.0.50:5010/create';
         
         let parameterName='name='+projectName;
 		let parameterColor='color='+projectColor.replace('#','%23');
 
 		url = url+'?'+parameterName+'&'+parameterColor; 
 
-        console.log(url);
 		var requestOptions = {
 			method: 'POST',
 			redirect: 'follow'
@@ -68,12 +67,13 @@
     }
     
     async function updateProjectTAPI(project) {
-		let url = 'http://localhost:5010/update/'+project.id;
+		let url = 'http://192.168.0.50:5010/update/'+project.id;
 		let parameterName='name='+project.name;
 		let parameterStatus='status='+project.status;
 		let parameterColor='color='+project.color.replace('#','%23');
+		let parameterPPMId='ppm_project_id='+project.ppm_project_id;
 
-		url = url+'?'+parameterName+'&'+parameterStatus+'&'+parameterColor; 
+		url = url+'?'+parameterName+'&'+parameterStatus+'&'+parameterColor+'&'+parameterPPMId; 
 
 		var requestOptions = {
 			method: 'PUT',
@@ -102,7 +102,7 @@
                     <div/>
                     {:then oProjects}
                         {#each oProjects as oProject}
-                            <Project projectId={oProject.id} projectName={oProject.name} projectStatus={oProject.status} 
+                            <Project projectId={oProject.id} projectName={oProject.name} projectStatus={oProject.status} projectPPMId={oProject.ppm_project_id} 
                                 projectColor={oProject.color} on:projectChanged="{handleProjectChanged}" on:projectColorChanged="{handleProjectColorChanged}" />
                         {/each}
                     {:catch error}

@@ -3,7 +3,7 @@
     import Button from "smelte/src/components/Button";
 
 	async function getTimesheetsTAPI(startDate, endDate){ 
-        let url = 'http://localhost:5012/timesheets/dates';        
+        let url = 'http://192.168.0.50:5012/timesheets/dates';        
         const startDateParamenter = 'start_date='+startDate;
         const endDateParamenter = 'end_date='+endDate;
         
@@ -39,7 +39,7 @@
 					let subslot = subslots[j];
 
 					const taskId = subslot.task_id;
-					let url = 'http://localhost:5011/view/project';        
+					let url = 'http://192.168.0.50:5011/view/project';        
 					const parameterTaskId = taskId;
 					
 					url = url+'/'+parameterTaskId;
@@ -140,9 +140,7 @@
 
 <style>
 
-	:global(body) { 
-		background-color: rgb(243, 240, 240);
-	}
+
 	content {
 		display: grid;
 		grid-template-columns: 0.1fr 1fr 1fr 1fr 1fr 1fr 0.1fr;

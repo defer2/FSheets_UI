@@ -16,7 +16,10 @@
 	};
 </script>
 
-<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+<svelte:head>
+	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+	<title>F! Timesheets</title>
+</svelte:head>
 
 <header>
 	<Header on:handleMenu={handleMenu} />
@@ -55,7 +58,7 @@
 <style>
 
 	:global(body) { 
-		background-color: rgb(243, 240, 240);
+		background-color: #f3f0f0;
 	}
 	content {
 		display: grid;

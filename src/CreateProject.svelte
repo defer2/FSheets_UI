@@ -26,9 +26,6 @@
 			projectColor: projectColor
 		});
 
-		console.log(projectName);
-		console.log(projectColor);
-
 		projectElement.value = '';
 		projectElement.placeholder = 'add a new project';
 	};

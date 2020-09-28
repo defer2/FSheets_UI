@@ -1,6 +1,5 @@
 <script>
 	import Button from "smelte/src/components/Button";
-	import Menu from 'smelte/src/components/Menu';
 	import { createEventDispatcher } from 'svelte'
 	const dispatch = createEventDispatcher();
 	import Navigation from "./Navigation.svelte";
@@ -53,7 +52,9 @@
 		grid-template-columns: 97% 2%;
 		align-items: center;
 		height: 63px;
-		background-color: rgb(94, 90, 90);
+		background-color: rgb(117, 117, 117);
+		box-shadow: 0px 0px 4px 0px  rgba(0,0,0,0.2);
+		/* background-color: rgb(94, 90, 90); */
 		width: 100%;
 		overflow: hidden;
 		position: fixed;

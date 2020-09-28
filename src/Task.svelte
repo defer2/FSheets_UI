@@ -113,7 +113,7 @@
     const handleProjectsMenuOpen = (e) => {
         clearTimeout(menuProjectTimer);
         menuProjectTimer = null;
-        const timeout = 150;
+        const timeout = 250;
         setTimeout(()=> open = true, timeout);
     };
 

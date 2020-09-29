@@ -18,7 +18,7 @@
     const handleDragStart = (e) => {
         e.dataTransfer.setData('text/plain', e.target.id);
         dispatch('subslotDragStart', {
-            subslotId: e.target.id
+            subslotId: subslotId
         }); 
     };
 

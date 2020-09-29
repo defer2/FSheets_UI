@@ -4,11 +4,10 @@
 
 	import { createEventDispatcher } from 'svelte'
 	const dispatch = createEventDispatcher();
-	let eventKeyUp=false;
+	let taskName;
 
 	const addTask = () => {	
         const taskElement = document.getElementById('txtTaskname');
-        const taskName = taskElement.value;
 
         dispatch('taskAdded', {
             taskName: taskName
@@ -63,7 +62,7 @@
 
 <div class="container">
 	<div class="textfield">
-		<TextField id='txtTaskname' on:focus={checkIfEnter} type="text" minlength="4" max="50" placeholder="add a new task" size="10" style='background-color:white;'/>
+		<TextField bind:value={taskName} id='txtTaskname' on:focus={checkIfEnter} type="text" minlength="4" max="50" placeholder="add a new task" size="10" style='background-color:white;'/>
 	</div>
 	<div class="btnAdd py-2">
 		<Button id="btn-create-task" icon="add" small on:click="{addTask}"/>

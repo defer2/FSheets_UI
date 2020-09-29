@@ -3,7 +3,7 @@
     import Button from "smelte/src/components/Button";
 	import MenuProject from 'smelte/src/components/MenuProject';
     import { createEventDispatcher } from 'svelte';
-
+    import { Select, Checkbox } from "smelte";
 
 
     export let taskName;
@@ -39,7 +39,7 @@
     const handleDragStart = (e) => {
         e.dataTransfer.setData('text/plain', e.target.id);
         dispatch('taskDragStart', {
-            taskId: e.target.id
+            taskId: taskId
         }); 
     };
 
@@ -67,22 +67,17 @@
 
 
     const handleTaskDone = (e) => {
-        taskStatus == 2 ? taskStatus = 1 : taskStatus = 2
+        taskStatus < 3 ? taskStatus++ : taskStatus = 1;
         
         try{
-            let checkboxId=e.target.id;
-            let txtId = checkboxId.replace('chk-done-','');
-            let divParent = document.getElementById(txtId);
-
             dispatch('taskChanged', {
-                taskId: divParent.getAttribute('data-id'),
+                taskId: taskId,
                 taskName: '',
                 taskColor: '',
                 taskStatus: taskStatus,
                 taskDescription: '',
                 taskProjectId: '',
             });
-
         }catch(error){
             console.log('error', error);
         }
@@ -92,8 +87,8 @@
     
     const handleTaskChanged = (e) => {
         dispatch('taskChanged', {
-            taskId: document.getElementById(e.target.id).getAttribute('data-id'),
-            taskName: e.target.value,
+            taskId: taskId,
+            taskName: taskName,
             taskColor: '',
             taskStatus: '',
             taskDescription: '',
@@ -104,7 +99,7 @@
     const handleEnter = (evt) => {
 			evt.target.addEventListener('keyup',(e)=>{
 				if (e.key === 'Enter' || e.keyCode === 13) {
-                    e.target.blur();
+                    handleTaskChanged(evt);
 				}
 			});
 
@@ -127,14 +122,41 @@
 
 
 
+    let showList = false;
 
+    let value1 = "";
+  let value2 = "";
+  let value3 = "";
+  let value4 = "";
+
+
+
+let selectedItems = [];
+
+function toggle(i) {
+  return v => v.detail
+    ? selectedItems.push(i)
+    : selectedItems = selectedItems.filter(si => si !== i);
+}
+
+$: selectedLabel = selectedItems.map(i => i.text).join(", ");
+
+const label = "A select";
 </script>
 
 <div class="task-container">
     <!-- Checkbox -->
     <div class="checkbox">
-        <Button id="chk-done-task-{taskId}" color='gray' text  small icon='done'
-                on:click="{handleTaskDone}" />
+        {#if taskStatus==1}
+            <Button id="chk-done-task-{taskId}" color='gray' text  small icon='done'
+                    on:click="{handleTaskDone}" />
+        {:else if taskStatus==2}
+            <Button id="chk-done-task-{taskId}" color='gray' text  small icon='remove_circle_outline'
+            on:click="{handleTaskDone}" />
+        {:else}
+            <Button id="chk-done-task-{taskId}" color='gray' text  small icon='undo'
+            on:click="{handleTaskDone}" />
+        {/if}
     </div>
    
     <!-- Tarea -->
@@ -143,25 +165,13 @@
             on:dragstart={handleDragStart} on:dragend={handleDragEnd} >
             <!-- Texto -->
         {#if taskStatus==2}
-            {#if taskEditable}
-                <TextField id="txt-task-{taskId}" style='text-decoration:line-through;background-color:white;'
-                    on:focus={handleEnter} size="60" on:blur="{handleTaskChanged}" on:blur="{handleTaskEditable}"
-                    value={taskName} data-projectId="{projectId}" data-name="{taskName}" data-id="{taskId}" data-status={taskStatus} data-description={taskDescription}  data-color="{projectColor}"/>
-            {:else}
-                <div ondrop="return false;" class='textfield' style='text-decoration:line-through;color:gray;background-color:white'>
-                    {taskName}
-                </div>
-            {/if}
+            <div ondrop="return false;" style='text-decoration:line-through;color:gray;'>
+                {taskName}
+            </div>
         {:else}
-            {#if taskEditable}
-                <TextField id="txt-task-{taskId}" style='background-color:white;' 
-                    on:focus={handleEnter} size="60" on:blur="{handleTaskChanged}" on:blur="{handleTaskEditable}"
-                    value={taskName} data-projectId="{projectId}" data-name="{taskName}" data-id="{taskId}" data-status={taskStatus} data-description={taskDescription}  data-color="{projectColor}"/>
-            {:else}
-                <div ondrop="return false;" style='background-color:white'>
-                    {taskName}
-                </div>
-            {/if}
+            <div ondrop="return false;">
+                {taskName}
+            </div>
         {/if}
     </div>
 
@@ -187,6 +197,18 @@
     </div>
 </div>
 
+{#if taskEditable}
+    <div class="edit-task-name">
+        <TextField label="Task name" id="txt-task-{taskId}" style='background-color:white;' 
+        on:focus={handleEnter} size="60" 
+        bind:value={taskName} data-projectId="{projectId}" data-name="{taskName}" data-id="{taskId}" data-status={taskStatus} data-description={taskDescription}  data-color="{projectColor}"/>
+    </div>
+    <div class="edit-task-name">
+        <Select label="Project" {items} autocomplete on:change={v => (projectId = v.detail)} />
+    </div>
+
+{/if}
+
 <style>
     .task-container{
         display: grid;
@@ -202,7 +224,6 @@
         justify-content: center;
         align-items: center;
         margin-right: 15px;
-
     }
 
     .properties{
@@ -236,6 +257,13 @@
         margin-left: 2px;
         width: 3px;
     }
+
+
+    .edit-task-name{
+        width: 80%;
+        height: 60px;
+        margin-left: 20px;
+    }    
 </style>
 
 

@@ -105,8 +105,6 @@
             projectColor: projectColor
         });
     }
-
-    projectColor ? projectColor : getRandomColor();
 </script>
 
 <div class="project-container">
@@ -143,7 +141,7 @@
         on:click="{handleShowColorPicker}"/>
 </div>
 
-    {#if projectEditable}
+{#if projectEditable}
     <div>
         <div class="edit-project-name">
             <TextField label="Project name" id="txt-project-{projectId}" style='background-color:white'
@@ -162,7 +160,7 @@
                 </div>
         </div>
     </div>
-    {/if}
+{/if}
 
 
 

@@ -25,15 +25,13 @@
 	<Header on:handleMenu={handleMenu} />
 </header>
 <main>
-
-		{#if showProjects}
+	{#if showProjects}
 		<content>
 			<section id='projects'>
 				<Projects/>
 			</section>
 		</content>
-
-		{:else if showHome}
+	{:else if showHome}
 		<content>
 			<section id='todolist'>
 				<Todolist/>
@@ -42,21 +40,15 @@
 				<Timesheet/>
 			</section>
 		</content>
-
-		{:else if showExtendedView}
+	{:else if showExtendedView}
 		<section id='timesheet' style='margin-right:40px'>
 			<TimesheetsExtendedView/>
 		</section>
-		{/if}
-
+	{/if}
 </main>
 <footer></footer>
 
-
-
-
 <style>
-
 	:global(body) { 
 		background-color: #f3f0f0;
 	}

@@ -2,24 +2,17 @@
 	import Task from "./Task.svelte";	
 	import CreateTask from "./CreateTask.svelte";	
 	import RemoveTask from "./RemoveTask.svelte";
+    import Button from "smelte/src/components/Button";
 
 
 	let showRemoveTask = false;
 	let projectsMenu = [];
 	let projects;
+	let showInactives = false;
 	/*HANDLE Functions*/
 	const handleTaskDragStart = () => {showRemoveTask=true;};
 	const handleTaskDragEnd = () => {showRemoveTask=false;};
 	
-
-	function getRandomColor() {
-		var letters = '0123456789ABCDEF';
-		var color = '#';
-		for (var i = 0; i < 6; i++) {
-			color += letters[Math.floor(Math.random() * 16)];
-		}
-		return color;
-	}
 
 	const handleTaskAdded = (event) =>{
 		createTasksTAPI(event.detail.taskName);
@@ -170,7 +163,15 @@
 />
 
 <div id="todolist-container" class="todolist-container">
-	<div class="title"><h5>Things to do</h5></div>
+	<div class="title">
+		<h5>Things to do</h5>
+		{#if showInactives}
+			<Button color='gray' text  small icon='visibility_off' on:click="{() => showInactives = !showInactives}"/>
+		{:else}
+			<Button color='gray' text  small icon='visibility' on:click="{() => showInactives = !showInactives}"/>
+		{/if}
+
+	</div>
 	<div class="createTask"><CreateTask on:taskAdded="{handleTaskAdded}" /></div>
 	<div id="todolist-tasks" class="tasks">
 		<div class="todolist-task">
@@ -178,17 +179,40 @@
 			<div/>
 			{:then oTasks}
 				{#each oTasks as oTask}
-					<Task taskId={oTask.id} taskName={oTask.name} taskProject={oTask.project} taskStatus={oTask.status} taskDescription={oTask.description}
-						on:taskDragStart={handleTaskDragStart} on:taskDragEnd={handleTaskDragEnd} on:taskChanged={handleTaskChanged} projects="{projectsMenu}" />
+					{#if oTask.status < 3}
+						<Task taskId={oTask.id} taskName={oTask.name} taskProject={oTask.project} taskStatus={oTask.status} taskDescription={oTask.description}
+							on:taskDragStart={handleTaskDragStart} on:taskDragEnd={handleTaskDragEnd} on:taskChanged={handleTaskChanged} projects="{projectsMenu}" />
+					{/if}
 				{/each}
 			{:catch error}
 				<p style="color: red">{error.message}</p>
 			{/await}			
 		</div>
 	</div>
-	{#if showRemoveTask}
-		<div class="removeTask"><RemoveTask on:taskRemoved={handleTaskRemoved} /></div>
+	{#if showInactives}
+		<div class="tasks">
+			<div class="todolist-task-inactive">
+				{#await tasks}
+				<div/>
+				{:then oTasks}
+					{#each oTasks as oTask}
+						{#if oTask.status > 2}
+							<Task taskId={oTask.id} taskName={oTask.name} taskProject={oTask.project} taskStatus={oTask.status} taskDescription={oTask.description}
+								on:taskChanged={handleTaskChanged} projects="{projectsMenu}" />
+						{/if}
+					{/each}
+				{:catch error}
+					<p style="color: red">{error.message}</p>
+				{/await}			
+			</div>
+		</div>
+	{:else}
+		{#if showRemoveTask}
+			<div class="removeTask"><RemoveTask on:taskRemoved={handleTaskRemoved} /></div>
+		{/if}
 	{/if}
+
+	
 </div>
 
 <style>
@@ -196,7 +220,8 @@
         display: flex;
         justify-content: center;
         align-items: center;		
-        height: 90px;
+		height: 90px;
+		gap: 5px;
 	}
 
 
@@ -204,6 +229,10 @@
 		height: 100%;
 	}
 
+	.todolist-task-inactive{
+		height: 100%;
+		background-color: lightgray;
+	}
 
 	.todolist-container{
 		box-shadow: 2px 2px 8px rgba(0,0,0,0.1);

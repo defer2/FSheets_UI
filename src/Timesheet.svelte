@@ -34,7 +34,6 @@
 		.catch(error => console.log('error', error));
 	}
 
-
     async function getTimesheetTAPI(date){ 
         let url = 'http://192.168.0.50:5012/timesheets/dates';        
         const dateParameter = 'date='+date;
@@ -132,7 +131,6 @@
         timesheetToday = timesheetToday
     }    
 
-    
     async function updateSubslotTAPI(subslotId, slotId, startDate, endDate) {
         let url = 'http://192.168.0.50:5012/subslots';
         
@@ -277,7 +275,6 @@
 
         (myDate.getDay() == 6 || myDate.getDay() == 0) ? timesheetColor = 'rgb(236, 236, 236)' : timesheetColor = 'white';
     }
-
 
 </script>
 

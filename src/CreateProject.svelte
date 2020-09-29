@@ -4,10 +4,11 @@
 
 	import { createEventDispatcher } from 'svelte'
 	const dispatch = createEventDispatcher();
-	let eventKeyUp = false;
 	let longpress = 1000;
-	
-	const getRandomColor = () => {
+	let projectName;
+	let projectColor = getRandomColor();
+
+	function getRandomColor(){
         const letters = '0123456789ABCDEF';
         let color = '#';
         for (let i = 0; i < 6; i++) {
@@ -18,8 +19,6 @@
 	
 	const addProject = () => {	
         const projectElement = document.getElementById('txtProjectname');
-		let projectColor = getRandomColor();
-        const projectName = projectElement.value;
 
         dispatch('projectAdded', {
 			projectName: projectName,
@@ -32,9 +31,10 @@
 
 	const checkIfEnter = (evt) => {
 		let delay;
+
 		evt.target.addEventListener('keydown',(e)=>{
 			if (e.key === 'Enter' || e.keyCode === 13) {
-				document.getElementById('btn-create-project').click();
+				addProject();
 			}else if (e.key === 'Backspace' || e.key === 'Delete' || e.keyCode === 46 || e.keyCode === 8) {
 				delay = setTimeout(deleteWholeWord, longpress);
 
@@ -77,7 +77,7 @@
 
 <div class="container">
 	<div class="textfield">
-		<TextField id='txtProjectname' on:focus={checkIfEnter} type="text" minlength="4" max="50" placeholder="add a new project" size="10" style='background-color:white;'/>
+		<TextField id='txtProjectname' bind:value={projectName} on:focus={checkIfEnter} type="text" minlength="4" max="50" placeholder="add a new project" size="10" style='background-color:white;'/>
 	</div>
 	<div class="btnAdd py-2">
 		<Button id="btn-create-project" icon="add" small on:click="{addProject}"/>

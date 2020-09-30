@@ -18,7 +18,6 @@
 
 <svelte:head>
 	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
-	<title>F! Timesheets</title>
 </svelte:head>
 
 <header>

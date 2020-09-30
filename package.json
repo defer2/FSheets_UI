@@ -5,7 +5,6 @@
     "build": "rollup -c",
     "dev": "rollup -c -w",
     "start": "sirv public --host 192.168.0.50 --port 5015"
-    
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^14.0.0",
@@ -27,6 +26,7 @@
     "sirv-cli": "^1.0.0",
     "smelte": "^1.0.15",
     "svelte-color-picker": "^1.0.7",
+    "svelte-content-loader": "^1.1.3",
     "svelte-watch-resize": "^1.0.3"
   }
 }

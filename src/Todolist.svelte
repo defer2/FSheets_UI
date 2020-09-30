@@ -3,6 +3,7 @@
 	import CreateTask from "./CreateTask.svelte";	
 	import RemoveTask from "./RemoveTask.svelte";
     import Button from "smelte/src/components/Button";
+    import ContentLoader from 'svelte-content-loader';   
 
 
 	let showRemoveTask = false;
@@ -154,6 +155,8 @@
 
 
 	let tasks = getTasksTAPI();
+
+	
 </script>
 
 
@@ -161,22 +164,31 @@
   href="https://fonts.googleapis.com/icon?family=Material+Icons"
   rel="stylesheet"
 />
-
 <div id="todolist-container" class="todolist-container">
 	<div class="title">
 		<h5>Things to do</h5>
-		{#if showInactives}
-			<Button color='gray' text  small icon='visibility_off' on:click="{() => showInactives = !showInactives}"/>
-		{:else}
-			<Button color='gray' text  small icon='visibility' on:click="{() => showInactives = !showInactives}"/>
-		{/if}
+		{#await tasks}
+			<div class="loader" />
+		{:then oTasks}
+			{#if showInactives}
+				<Button color='gray' text  small icon='visibility_off' on:click="{() => showInactives = !showInactives}"/>
+			{:else}
+				<Button color='gray' text  small icon='visibility' on:click="{() => showInactives = !showInactives}"/>
+			{/if}
+		{/await}			
+
 
 	</div>
 	<div class="createTask"><CreateTask on:taskAdded="{handleTaskAdded}" /></div>
 	<div id="todolist-tasks" class="tasks">
 		<div class="todolist-task">
 			{#await tasks}
-			<div/>
+				<div class="preloader">
+					<ContentLoader>
+						<rect x="0" y="30" rx="30" ry="30" width="10" height="10" />
+						<rect x="70" y="25" rx="3" ry="3" width=310 height="20" />
+					</ContentLoader>
+				</div>
 			{:then oTasks}
 				{#each oTasks as oTask}
 					{#if oTask.status < 3}
@@ -193,7 +205,12 @@
 		<div class="tasks">
 			<div class="todolist-task-inactive">
 				{#await tasks}
-				<div/>
+					<div class="preloader">
+						<ContentLoader>
+							<rect x="0" y="30" rx="30" ry="30" width="10" height="10" />
+							<rect x="70" y="25" rx="3" ry="3" width=310 height="20" />
+						</ContentLoader>
+					</div>
 				{:then oTasks}
 					{#each oTasks as oTask}
 						{#if oTask.status > 2}
@@ -216,6 +233,13 @@
 </div>
 
 <style>
+	.preloader{
+        display: grid;
+        align-items: center;
+        justify-items: center;
+		background-color: white;
+		height: 90px;
+    }
 	.title{
         display: flex;
         justify-content: center;
@@ -242,4 +266,26 @@
 	@media (min-width: 640px) {
 
 	}
+
+	.loader {
+        border: 2px solid #f3f3f3;
+        border-radius: 50%;
+        border-top: 2px solid gray;
+        width: 20px;
+        height: 20px;
+        -webkit-animation: spin 2s linear infinite; /* Safari */
+        animation: spin 2s linear infinite;
+        margin-left: 5px;
+    }
+
+    /* Safari */
+    @-webkit-keyframes spin {
+    0% { -webkit-transform: rotate(0deg); }
+    100% { -webkit-transform: rotate(360deg); }
+    }
+
+    @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+    }
 </style>

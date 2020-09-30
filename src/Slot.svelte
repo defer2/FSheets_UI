@@ -1,6 +1,8 @@
 <script>
     import Subslot from './Subslot.svelte'
     import { createEventDispatcher } from 'svelte'
+
+
     const dispatch = createEventDispatcher();
 
     export let hour;
@@ -45,23 +47,6 @@
             });
         }
         
-    };
-
-    const handlesubslotDragStart = () => {dispatch('subslotDragStart', {});};
-    const handlesubslotDragEnd = () => {dispatch('subslotDragEnd', {});};
-
-    const handleRemoveSubslotTimesheet = (e) => {
-        dispatch('removeSubslotTimesheet', {
-            subslotId: e.detail.subslotId,
-            slotId: e.detail.slotId
-        });
-                
-    };
-
-    const handleSubslotChangeSize = (e) => {
-        dispatch('subslotsChangeSize', {
-                subslots: subslotsChangeSize(e.detail.slotId, e.detail.subslotId)
-            });        
     };
 
     /* MISC FUNCTIONS */
@@ -171,7 +156,6 @@
         return Math.round(((new Date(subslot.end_date) - new Date(subslot.start_date) % 86400000) % 3600000) / 60000) * 100 / 60 ;
     };
 
-
     subslots = subslotsCalculateSize(subslots);  
 </script>
 
@@ -200,9 +184,9 @@
         <div class="subslots" id="subslots-of-slot-{slotId}" data-slotId="{slotId}">
             {#each subslots as subslot}
                 <div class="slot-subslot" data-slotId="{slotId}">
-                    <Subslot on:subslotsChangeSize={handleSubslotChangeSize} on:removesubslotTimesheetForSlot="{handleRemoveSubslotTimesheet}" 
-                        on:subslotDragStart={handlesubslotDragStart} on:subslotDragEnd={handlesubslotDragEnd}
-                        subslotName={subslot.task_name} project="{subslot.project}" subslotId="{subslot.id}" slotId="{slotId}" taskId="{subslot.task_id}"
+                    <Subslot on:subslotsChangeSize on:removeSubslotTimesheet 
+                        subslotName={subslot.task_name} project="{subslot.project}" subslotId="{subslot.id}" slotId="{slotId}" 
+                        taskId="{subslot.task_id}"
                         subslotStartDate={subslot.start_date} subslotEndDate={subslot.end_date} subslotHeight="{subslot.height}" />
                 </div>
             {/each}

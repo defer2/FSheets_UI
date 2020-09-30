@@ -14,18 +14,9 @@
     let wasResized = false;
     let setInitialSizes = false;
     const dispatch = createEventDispatcher();
-
-    const handleDragStart = (e) => {
-        e.dataTransfer.setData('text/plain', e.target.id);
-        dispatch('subslotDragStart', {
-            subslotId: subslotId
-        }); 
-    };
-
-    const handleDragEnd = () => { dispatch('subslotDragEnd', {}); };
     
     const handleRemovesubslotTimesheet = () => {        
-        dispatch('removesubslotTimesheetForSlot', {
+        dispatch('removeSubslotTimesheet', {
             subslotId: subslotId,
             slotId: slotId
         });
@@ -107,14 +98,15 @@
 </style>
 
 <div id={'subslot-container-'+subslotId} 
-    data-slotId="{slotId}" data-taskId="{taskId}" data-height="{subslotHeight}" data-subslotId="{subslotId}" data-project="{JSON.stringify(project)}"
+    data-slotId="{slotId}" data-taskId="{taskId}" data-height="{subslotHeight}" data-subslotId="{subslotId}" 
+    data-project="{JSON.stringify(project)}"
     class="{resizable === true ? 'subslot-container resize': 'subslot-container'}" style="height: {subslotHeight}px;" 
     on:mouseover="{handleResizeOption}" on:mouseup="{handleMouseUp}" on:mouseout="{handleResizeOption}" use:watchResize="{handleResize}">
 
     <!-- Tarea -->   
-    <div id="subslot-{subslotId}" class="subslot" data-name="{subslotName}" data-slotId="{slotId}" data-project="{JSON.stringify(project)}"
-            data-id="{subslotId}" data-color="{project.color}" data-taskId="{taskId}"
-            on:dragstart={handleDragStart} on:dragend={handleDragEnd}>
+    <div id="subslot-{subslotId}" class="subslot" data-name="{subslotName}" data-slotId="{slotId}" 
+        data-project="{JSON.stringify(project)}"
+        data-id="{subslotId}" data-color="{project.color}" data-taskId="{taskId}">
             
             <!-- Texto -->
             <div ondrop="return false;" data-slotId="{slotId}">

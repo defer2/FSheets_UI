@@ -1,7 +1,7 @@
 <script>
     import Slot from "./Slot.svelte";	
     import Button from "smelte/src/components/Button";
-
+    import ContentLoader from 'svelte-content-loader';   
     const resourceName = 'fernando.defalco'
     let date=dateToShortFormat(getTodayDate());
     let timesheetToday = getTimesheetTAPI(date);
@@ -13,6 +13,8 @@
     let timesheetSubtitle;
     let timesheetColor;
     let ppm_synced = false;
+    let ppm_sync_error = false;
+    let ppm_syncing = false;
     setTimesheetDaySettings(date);
 
 
@@ -158,7 +160,7 @@
         timesheetToday = timesheetToday
     }
 
-    async function handleSubmitTimesheet(){
+    async function submitTimesheet(){
         timesheetToday.then(async (result) => {
             let url = 'http://192.168.0.50:5013/timesheet';
             result[0].resource_name = resourceName;
@@ -173,10 +175,26 @@
                 body: JSON.stringify(result[0])
             };
 
-        	const res = await fetch(url, requestOptions)
-            .catch(error => console.log('error', error));
+            ppm_syncing = true;
+            const res = await fetch(url, requestOptions)
+            .then(response => {
+                ppm_syncing = false;
+                return response;
+            })
+            .catch((e) => {
+                ppm_sync_error = true;
+                ppm_syncing = false;
+                console.log(e);
+            });
 
-            if(res.ok) ppm_synced = true;
+            if(res.ok){
+                ppm_synced = true; 
+                ppm_sync_error = false;
+            }else{
+                ppm_synced = false; 
+                ppm_sync_error = true;
+                console.log(res.error);
+            }
         })
     }
 
@@ -287,17 +305,21 @@
             <div class="titlebox">
                     <div class="sendButton">
                         {#await timesheetToday}
-                            <Button on:click={() => handleSubmitTimesheet()} icon="cloud_upload" light flat text color='gray'/>
+                            <div class="loader" />
                         {:then timesheetToday}
-                            {#if timesheetToday[0].ppm_synced == 1 && timesheetToday[0].ppm_last_sync || ppm_synced}
-                                <Button on:click={() => handleSubmitTimesheet()} icon="cloud_upload" light flat text color='success'/>
-                            {:else if timesheetToday[0].ppm_synced == 1 && !timesheetToday[0].ppm_last_sync}
-                                <Button on:click={() => handleSubmitTimesheet()} icon="cloud_upload" light flat text color='alert'/>
+                            {#if !ppm_syncing && ppm_sync_error}
+                                <Button on:click={() => submitTimesheet()} icon="cloud_upload" light flat text color='error'/>
+                            {:else if !ppm_syncing && timesheetToday[0].ppm_synced == 1 && timesheetToday[0].ppm_last_sync || ppm_synced}
+                                <Button on:click={() => submitTimesheet()} icon="cloud_upload" light flat text color='success'/>
+                            {:else if !ppm_syncing && timesheetToday[0].ppm_synced == 1 && !timesheetToday[0].ppm_last_sync}
+                                <Button on:click={() => submitTimesheet()} icon="cloud_upload" light flat text color='alert'/>
+                            {:else if ppm_syncing}
+                                <div class="loader" />
                             {:else}
-                                <Button on:click={() => handleSubmitTimesheet()} icon="cloud_upload" light flat text color='gray'/>
+                                <Button on:click={() => submitTimesheet()} icon="cloud_upload" light flat text color='gray'/>
                             {/if}
                         {:catch error}
-                            <Button on:click={() => handleSubmitTimesheet()} icon="cloud_upload" light flat text color='gray'/>
+                            <Button on:click={() => submitTimesheet()} icon="cloud_upload" light flat text color='gray'/>
                         {/await}	
 
                         </div>
@@ -335,11 +357,16 @@
                 </div>
             {/if}
         </div>
-        <div class="slots">
 
         {#await timesheetToday}
-            <div/>
+            <div class="preloader">
+                <ContentLoader>
+                    <rect x="0" y="30" rx="30" ry="30" width="10" height="10" />
+                    <rect x="70" y="25" rx="3" ry="3" width=310 height="20" />
+                </ContentLoader>
+            </div>
         {:then timesheetToday}
+        <div class="slots">
             {#each timesheetToday[0].Slots as slot}
                 {#if new Date(slot.hour).getHours() > 8 && new Date(slot.hour).getHours() < 19}
                     <Slot slotId="{slot.id}" hour="{slot.hour}" subslots={slot.Subslots}
@@ -347,16 +374,23 @@
                         on:subslotDragEnd={handleSubslotDragEnd} on:removeSubslotTimesheet={handleSubslotRemoved}/> 
                 {/if}
             {/each}
+        </div>
         {:catch error}
             <p style="color: red">{error.message}</p>
         {/await}	
 		
   
-        </div>
     </div>
 
 <style>
 
+    .preloader{
+        display: grid;
+        align-items: center;
+        justify-items: center;
+		background-color: white;
+		height: 90px;
+    }
     .container{
         box-shadow: 2px 2px 8px  rgba(0,0,0,0.1);
     }
@@ -425,7 +459,6 @@
         align-self: top;
         justify-self: right;
         float: left;
-
     }
 
     .subtitle{
@@ -437,4 +470,26 @@
         justify-self: center;
     }
 
+    .loader {
+        border: 2px solid #f3f3f3;
+        border-radius: 50%;
+        border-top: 2px solid gray;
+        width: 20px;
+        height: 20px;
+        -webkit-animation: spin 2s linear infinite; /* Safari */
+        animation: spin 2s linear infinite;
+        margin-top: 18px;
+        margin-right: 15px;
+    }
+
+    /* Safari */
+    @-webkit-keyframes spin {
+    0% { -webkit-transform: rotate(0deg); }
+    100% { -webkit-transform: rotate(360deg); }
+    }
+
+    @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+    }
 </style>

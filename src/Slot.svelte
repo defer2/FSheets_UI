@@ -49,6 +49,12 @@
         
     };
 
+    const handleSubslotChangeSize = (e) => {
+        dispatch('subslotsChangeSize', {
+                subslots: subslotsChangeSize(e.detail.slotId, e.detail.subslotId)
+            });        
+    };
+
     /* MISC FUNCTIONS */
 
     const subslotAlreadyExists = (slotId, taskId) => {
@@ -184,7 +190,7 @@
         <div class="subslots" id="subslots-of-slot-{slotId}" data-slotId="{slotId}">
             {#each subslots as subslot}
                 <div class="slot-subslot" data-slotId="{slotId}">
-                    <Subslot on:subslotsChangeSize on:removeSubslotTimesheet 
+                    <Subslot on:subslotsChangeSize={handleSubslotChangeSize} on:removeSubslotTimesheet 
                         subslotName={subslot.task_name} project="{subslot.project}" subslotId="{subslot.id}" slotId="{slotId}" 
                         taskId="{subslot.task_id}"
                         subslotStartDate={subslot.start_date} subslotEndDate={subslot.end_date} subslotHeight="{subslot.height}" />

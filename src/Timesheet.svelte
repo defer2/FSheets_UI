@@ -1,4 +1,5 @@
 <script>
+
     import Slot from "./Slot.svelte";	
     import Button from "smelte/src/components/Button";
     import ContentLoader from 'svelte-content-loader';   
@@ -18,7 +19,6 @@
     setTimesheetDaySettings(date);
 
     /* API functions*/
-
     async function createTimesheetTAPI(date) {
 		let url = __app.env.API_TIMESHEETS_URL+'/timesheets';
         const dateParameter = 'date='+date;

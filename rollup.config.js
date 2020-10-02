@@ -4,6 +4,10 @@ import commonjs from '@rollup/plugin-commonjs';
 import livereload from 'rollup-plugin-livereload';
 import { terser } from 'rollup-plugin-terser';
 
+import {config} from 'dotenv';
+import replace from '@rollup/plugin-replace';
+
+
 const smelte = require("smelte/rollup-plugin-smelte");
 
 const production = !process.env.ROLLUP_WATCH;
@@ -47,12 +51,16 @@ export default {
 				css.write('bundle.css');
 			}		
 		}),
-
-		// If you have external dependencies installed from
-		// npm, you'll most likely need these plugins. In
-		// some cases you'll need additional configuration -
-		// consult the documentation for details:
-		// https://github.com/rollup/plugins/tree/master/packages/commonjs
+		replace({
+			// stringify the object       
+			__app: JSON.stringify({
+			  env: {
+				isProd: production,
+				...config().parsed // attached the .env config
+			  }
+			}),
+		  }),
+		
 		resolve({
 			browser: true,
 			dedupe: importee => importee === 'svelte' || importee.startsWith('svelte/')
@@ -110,8 +118,7 @@ export default {
 			  }, // Object of colors to generate a palette from, and then all the utility classes
 			  darkMode: false,
 			}, // Any other props will be applied on top of default Smelte tailwind.config.js
-		  })
-		
+		  }),
 	],
 	watch: {
 		clearScreen: false

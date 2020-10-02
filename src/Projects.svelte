@@ -33,7 +33,8 @@
     
 
     async function getProjectsTAPI() {
-		let url = 'http://192.168.0.50:5010/view';
+		
+		let url = __app.env.API_PROJECTS_URL+'/view';
 
 		const projects = await fetch(url)
 		.then(response => response)
@@ -46,7 +47,7 @@
 	}
 
 	async function createProjectTAPI(projectName, projectColor) {
-        let url = 'http://192.168.0.50:5010/create';
+        let url = __app.env.API_PROJECTS_URL+'/create';
         
         let parameterName='name='+projectName;
 		let parameterColor='color='+projectColor.replace('#','%23');
@@ -67,7 +68,7 @@
     }
     
     async function updateProjectTAPI(project) {
-		let url = 'http://192.168.0.50:5010/update/'+project.id;
+		let url = __app.env.API_PROJECTS_URL+'/update/'+project.id;
 		let parameterName='name='+project.name;
 		let parameterStatus='status='+project.status;
 		let parameterColor='color='+project.color.replace('#','%23');

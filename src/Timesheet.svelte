@@ -17,11 +17,10 @@
     let ppm_syncing = false;
     setTimesheetDaySettings(date);
 
-
     /* API functions*/
 
     async function createTimesheetTAPI(date) {
-		let url = 'http://192.168.0.50:5012/timesheets';
+		let url = __app.env.API_TIMESHEETS_URL+'/timesheets';
         const dateParameter = 'date='+date;
 
         url = url+'?'+dateParameter;
@@ -37,7 +36,7 @@
 	}
 
     async function getTimesheetTAPI(date){ 
-        let url = 'http://192.168.0.50:5012/timesheets/dates';        
+        let url = __app.env.API_TIMESHEETS_URL+'/timesheets/dates';        
         const dateParameter = 'date='+date;
         
         url = url+'?'+dateParameter;
@@ -71,7 +70,7 @@
                 let subslot = subslots[j];
 
                 const taskId = subslot.task_id;
-                let url = 'http://192.168.0.50:5011/view/project';        
+                let url = __app.env.API_TASKS_URL+'/view/project';        
                 const parameterTaskId = taskId;
                 
                 url = url+'/'+parameterTaskId;
@@ -90,7 +89,7 @@
     }
   
     async function deleteSubslotTAPI(subslotId) {
-		const url = 'http://192.168.0.50:5012/subslots/'+subslotId;
+		const url = __app.env.API_TIMESHEETS_URL+'/subslots/'+subslotId;
 
 		var requestOptions = {
 			method: 'DELETE',
@@ -109,7 +108,7 @@
 	}	
 
     async function createSubslotTAPI(slotId, taskId, taskName) {
-        let url = 'http://192.168.0.50:5012/subslots/quick';
+        let url = __app.env.API_TIMESHEETS_URL+'/subslots/quick';
         
         const parameterSlotId='slot_id='+slotId;
 		const parameterTaskId='task_id='+taskId;
@@ -134,7 +133,7 @@
     }    
 
     async function updateSubslotTAPI(subslotId, slotId, startDate, endDate) {
-        let url = 'http://192.168.0.50:5012/subslots';
+        let url = __app.env.API_TIMESHEETS_URL+'/subslots';
         
         const parameterSubslotId='/'+subslotId;
         const parameterSlotId='slot_id='+slotId;
@@ -162,7 +161,7 @@
 
     async function submitTimesheet(){
         timesheetToday.then(async (result) => {
-            let url = 'http://192.168.0.50:5013/timesheet';
+            let url = __app.env.API_CLARITYPPM_URL+'/timesheet';
             result[0].resource_name = resourceName;
 
             var requestOptions = {

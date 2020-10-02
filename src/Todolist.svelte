@@ -43,7 +43,7 @@
 
 	/*API Functions*/
 	async function getProjectsTAPI() {
-		let url = 'http://192.168.0.50:5010/view';
+		let url = __app.env.API_PROJECTS_URL+'/view';
 
 		const projects = await fetch(url)
 		.then(response => response)
@@ -56,7 +56,7 @@
 	}
 	
 	async function getTasksTAPI() {
-		let url = 'http://192.168.0.50:5011/view';
+		let url = __app.env.API_TASKS_URL+'/view';
 
 		const tasks = await fetch(url)
 		.then(response => response)
@@ -67,7 +67,7 @@
 
 		for(let i = 0; i< tasks.length; i++){
 			const projectId = tasks[i].project_id;
-			let url = 'http://192.168.0.50:5010/view';        
+			let url = __app.env.API_PROJECTS_URL+'/view';        
 			const parameterProjectId = projectId;
 			
 			url = url+'/'+parameterProjectId;
@@ -96,7 +96,7 @@
 	}
 
 	async function createTasksTAPI(taskName) {
-		let url = 'http://192.168.0.50:5011/create?name='+taskName;
+		let url = __app.env.API_TASKS_URL+'/create?name='+taskName;
 
 		var requestOptions = {
 			method: 'POST',
@@ -112,7 +112,7 @@
 	}
 
 	async function deleteTasksTAPI(taskId) {
-		let url = 'http://192.168.0.50:5011/delete/'+taskId;
+		let url = __app.env.API_TASKS_URL+'/delete/'+taskId;
 
 		var requestOptions = {
 			method: 'DELETE',
@@ -128,7 +128,7 @@
 	}	
 	
 	async function updateTaskTAPI(task) {
-		let url = 'http://192.168.0.50:5011/update/'+task.id;
+		let url = __app.env.API_TASKS_URL+'/update/'+task.id;
 		let parameterName='name='+task.name;
 		let parameterStatus='status='+task.status;
 		let parameterDescription='description='+task.description;

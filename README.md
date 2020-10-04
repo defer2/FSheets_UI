@@ -131,4 +131,4 @@ cd sheets/settings/bin
 
 # Usage
 
-Your application is ready~! 🚀 go to **http://localhost:5015**
+Your application is ready~! 🚀 go to **http://localhost:<UI PORT>**

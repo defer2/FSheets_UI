@@ -1,104 +1,134 @@
-*Looking for a shareable component template? Go here --> [sveltejs/component-template](https://github.com/sveltejs/component-template)*
+# Introduction
 
----
+F! Timesheets is a tool to easily track your *to do* tasks and the time that you spend on each task. It is also integrated with CA Clarity PPM to submit the data and keep your Clarity timesheets up to date.
 
-# svelte app
+## Considerations
 
-This is a project template for [Svelte](https://svelte.dev) apps. It lives at https://github.com/sveltejs/template.
+F! Timesheets is written in python and sveltejs. It has six components:
 
-To create a new project based on this template using [degit](https://github.com/Rich-Harris/degit):
+- UI
+- Timesheets MS
+- Tasks MS
+- Projects MS
+- ClarityPPMIntegration MS
+- Settings MS
+
+# Installation
+
+
+#### Create directory structure
+```bash
+mkdir -p sheets/ui
+mkdir -p sheets/timesheets
+mkdir -p sheets/tasks
+mkdir -p sheets/projects
+mkdir -p sheets/clarityppm
+mkdir -p sheets/settings
+```
+#### Download the microservices from GitHub
 
 ```bash
-npx degit sveltejs/template svelte-app
-cd svelte-app
+cd sheets
+
+https://github.com/defer2/FSheets_UI.git ui
+https://github.com/defer2/FSheets_TimesheetsMS.git timesheets
+https://github.com/defer2/FSheets_TasksMS.git tasks
+https://github.com/defer2/FSheets_ProjectsMS.git projects
+https://github.com/defer2/FSheets_ClarityPPMIntegrationMS.git clarityppm
+https://github.com/defer2/FSheets_SettingsMS.git settings
 ```
 
-*Note that you will need to have [Node.js](https://nodejs.org) installed.*
+#### Modify settings files
+###### sheets/ui/conf/configuration.js
+```javascript
+export default{
+	"API_SETTINGS_URL":"http://<Settings MS host>:<Settings MS port>"
+}
+```
 
+###### sheets/tasks/conf/config.ini
+```ini
+[PPM]
+USERNAME= <ppm_username>
+PASSWORD= <ppm_password>
+URL= http://<ppm_host>:<ppm_port?/ppm/rest/v1/
 
-## Get started
+[FTIMESHEETS]
+API_TIMESHEETS_URL= http://<Timesheets MS host>:<Timesheets MS port>
+API_TASKS_URL= http://<Tasks MS host>:<Tasks MS port>
+API_PROJECTS_URL= http://<Projects MS host>:<Projects MS port>
+API_CLARITYPPM_URL= http://<ClarityPPMIntegration MS host>:<ClarityPPMIntegration MS port>
+```
 
-Install the dependencies...
+###### sheets/clarityppm/conf/config.ini
+```ini
+[PPM]
+USERNAME= <ppm_username>
+PASSWORD= <ppm_password>
+URL= http://<ppm_host>:<ppm_port?/ppm/rest/v1/
 
+[FTIMESHEETS]
+API_TIMESHEETS_URL= http://<Timesheets MS host>:<Timesheets MS port>
+API_TASKS_URL= http://<Tasks MS host>:<Tasks MS port>
+API_PROJECTS_URL= http://<Projects MS host>:<Projects MS port>
+API_CLARITYPPM_URL= http://<ClarityPPMIntegration MS host>:<ClarityPPMIntegration MS port>
+```
+
+#### Configure settings database
+###### Rename database
 ```bash
-cd svelte-app
-npm install
+mv sheets/settings/database/rename_to_settings.db sheets/settings/database/settings.db
 ```
 
-...then start [Rollup](https://rollupjs.org):
+###### Configure settings parameters
+```sql
+UPDATE 
+	settings
+SET
+	api_timesheets_url = ‘http://<Timesheets MS host>:<Timesheets MS port>’ ,
+	api_tasks_url = ‘http://<Tasks MS host>:<Tasks MS port>’,
+	api_projects_url = ‘http://<Projects MS host>:<Projects MS port>’,
+	api_clarityppm_url = ‘http://<ClarityPPMIntegration MS host>:<ClarityPPMIntegration MS port>’,
+	ppm_url = ‘<ppm_url>’,
+	ppm_username = ‘<ppm_username>’,
+	ppm_password = ‘<ppm_password>’;
+```
 
+#### Configure start script
+
+###### sheets/settings/bin/startSheets.sh
 ```bash
-npm run dev
+#!/bin/zsh
+
+export UI_HOME=/absolute/path/to/sheets/ui
+export TIMESHEETS_HOME=/absolute/path/to/sheets/timesheets
+export TASKS_HOME=/absolute/path/to/sheets/tasks
+export PROJECTS_HOME=/absolute/path/to/sheets/projects
+export CLARITYPPM_HOME=/absolute/path/to/sheets/clarityppm
+export SETTINGS_HOME=/absolute/path/to/sheets/settings
+
+export UI_PORT=<UI port>
+export TIMESHEETS_PORT=<Timesheets MS port>
+export TASKS_PORT=<Tasks MS port>
+export PROJECTS_PORT=<Projects MS port>
+export CLARITYPPM_PORT=<ClarityPPMIntegration MS port>
+export SETTINGS_PORT=<Settings MS port>
+
+
+docker run --name fsheets_ui -p ${UI_PORT}:5000 -v ${UI_HOME}/conf:/srv/fsheets_ui/conf -d fernandod/fsheets_ui
+docker run --name fsheets_timesheets -p ${TIMESHEETS_PORT}:80 -v ${ TIMESHEETS_HOME }/database:/srv/flask_app/database -d fernandod/fsheets_timesheets
+docker run --name fsheets_tasks -p ${TASKS_PORT}:80 -v ${TASKS_HOME }/conf:/srv/flash_app/conf -v ${TASKS_HOME}/database:/srv/flask_app/database -d fernandod/fsheets_tasks
+docker run --name fsheets_projects -p ${PROJECTS_PORT}:80 -v ${PROJECTS_HOME }/database:/srv/flask_app/database -d fernandod/fsheets_projects
+docker run --name fsheets_clarityppm -p ${CLARITYPPM_PORT}:80 -v ${CLARITYPPM_HOME}/conf:/srv/flash_app/conf -d fernandod/fsheets_clarityppm
+docker run --name fsheets_settings -p ${SETTINGS_PORT}:80 -v ${SETTINGS_HOME}/database:/srv/flask_app/database -d fsheets_settings
 ```
 
-Navigate to [localhost:5000](http://localhost:5000). You should see your app running. Edit a component file in `src`, save it, and reload the page to see your changes.
-
-By default, the server will only respond to requests from localhost. To allow connections from other computers, edit the `sirv` commands in package.json to include the option `--host 0.0.0.0`.
-
-
-## Building and running in production mode
-
-To create an optimised version of the app:
-
+# Run
 ```bash
-npm run build
+cd sheets/settings/bin
+./startSheets.sh
 ```
 
-You can run the newly built app with `npm run start`. This uses [sirv](https://github.com/lukeed/sirv), which is included in your package.json's `dependencies` so that the app will work when you deploy to platforms like [Heroku](https://heroku.com).
+# Usage
 
-
-## Single-page app mode
-
-By default, sirv will only respond to requests that match files in `public`. This is to maximise compatibility with static fileservers, allowing you to deploy your app anywhere.
-
-If you're building a single-page app (SPA) with multiple routes, sirv needs to be able to respond to requests for *any* path. You can make it so by editing the `"start"` command in package.json:
-
-```js
-"start": "sirv public --single"
-```
-
-## Using TypeScript
-
-This template comes with a script to set up a TypeScript development environment, you can run it immediately after cloning the template with:
-
-```bash
-node scripts/setupTypeScript.js
-```
-
-Or remove the script via:
-
-```bash
-rm scripts/setupTypeScript.js
-```
-
-## Deploying to the web
-
-### With [Vercel](https://vercel.com)
-
-Install `vercel` if you haven't already:
-
-```bash
-npm install -g vercel
-```
-
-Then, from within your project folder:
-
-```bash
-cd public
-vercel deploy --name my-project
-```
-
-### With [surge](https://surge.sh/)
-
-Install `surge` if you haven't already:
-
-```bash
-npm install -g surge
-```
-
-Then, from within your project folder:
-
-```bash
-npm run build
-surge public my-project.surge.sh
-```
+Your application is ready~! 🚀 go to **http://localhost:<UI PORT\>**

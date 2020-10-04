@@ -94,7 +94,7 @@
     }
   
     async function deleteSubslotTAPI(subslotId) {
-		const url = __app.env.API_TIMESHEETS_URL+'/subslots/'+subslotId;
+		let url = API_TIMESHEETS_URL+'/subslots/'+subslotId;
 
 		var requestOptions = {
 			method: 'DELETE',

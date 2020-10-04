@@ -1,7 +1,7 @@
 <script>
     import * as Smelte from 'smelte'
     import { createEventDispatcher } from 'svelte';
-    import { Select, Checkbox } from "smelte";
+    import { Select } from "smelte";
 
 
     export let taskName;
@@ -187,11 +187,11 @@ const label = "A select";
 
      <!-- Color -->
     <div style="background-color:{projectColor};" class="projectColor" id="project-task-{taskId}" on:mouseout={handleProjectsMenuClose} on:mouseover={handleProjectsMenuOpen}>
-        <Smelte.MenuProject bind:open {items} bind:value={selectedProject} itemColor={projectColor} on:click={handleTaskChangeProject} on:mouseover={handleProjectsMenuOpen}>
+        <Smelte.Menu bind:open {items} bind:value={selectedProject} itemColor={projectColor} on:click={handleTaskChangeProject} on:mouseover={handleProjectsMenuOpen}>
             <div slot="activator">
                 <div style='width:15px' id="btn-prop-task-{taskId}" >&nbsp;</div>
             </div>
-        </Smelte.MenuProject>
+        </Smelte.Menu>
     </div>
 </div>
 

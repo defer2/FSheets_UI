@@ -13,6 +13,7 @@
 			showProjects: event.detail.showProjects,
 			showHome: event.detail.showHome,
 			showExtendedView: event.detail.showExtendedView,
+			showSettings: event.detail.showSettings,
 		}); 
 	};
 	

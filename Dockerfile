@@ -1,23 +1,17 @@
-FROM node:14-alpine
+FROM fsheets_ui:base
 
-WORKDIR /Users/defer2/PycharmProjects/FSheets_UI
-
-COPY rollup.config.js ./
-COPY package*.json ./
-COPY conf/configuration.js ./conf/configuration.js
-
-RUN npm install
+WORKDIR /srv/fsheets_ui
 
 COPY ./src ./src
 COPY ./public ./public
-COPY ./node_modules ./node_modules
+COPY rollup.config.js ./
+COPY package*.json ./
 
-RUN npm run-script build
 EXPOSE 5000
 
 ENV HOST=0.0.0.0
 
-CMD [ "npm", "start" ] 
+CMD npm run-script build && npm start
 
 
 

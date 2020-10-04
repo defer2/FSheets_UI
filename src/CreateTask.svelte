@@ -34,7 +34,10 @@
 		});
 
 		evt.target.addEventListener('keyup',(e)=>{
-			clearTimeout(delay);
+			try{
+				clearTimeout(delay);
+			}catch(e){}
+
 		});		
 	};
 </script>

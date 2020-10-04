@@ -1,5 +1,5 @@
 {
-  "name": "svelte-app",
+  "name": "fsheets_ui",
   "version": "1.0.0",
   "scripts": {
     "build": "rollup -c",
@@ -13,19 +13,19 @@
     "@smui/chips": "^1.0.0",
     "dotenv": "^8.2.0",
     "node-sass": "^4.14.1",
-    "rollup": "^2.3.4",
+    "rollup": "^2.28.2",
     "rollup-plugin-livereload": "^2.0.0",
     "rollup-plugin-postcss": "^3.1.8",
     "rollup-plugin-svelte": "^6.0.0",
     "rollup-plugin-terser": "^7.0.0",
-    "svelte": "^3.0.0",
+    "svelte": "^3.29.0",
     "svelte-material-ui": "^1.0.0"
   },
   "dependencies": {
     "@material-ui/styles": "^4.10.0",
     "css-element-queries": "^1.2.3",
     "sirv-cli": "^1.0.0",
-    "smelte": "^1.0.15",
+    "smelte": "^1.0.16",
     "svelte-color-picker": "^1.0.7",
     "svelte-content-loader": "^1.1.3",
     "svelte-watch-resize": "^1.0.3"

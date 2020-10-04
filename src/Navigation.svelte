@@ -16,7 +16,8 @@
     dispatch('handleMenu', {
       showHome: true,
       showProjects: false,
-      showExtendedView: false
+      showExtendedView: false,
+      showSettings: false
     }); 
   };
 
@@ -24,7 +25,20 @@
     dispatch('handleMenu', {
       showHome: false,
       showProjects: true,
-      showExtendedView: false
+      showExtendedView: false,
+      showSettings: false
+
+    }); 
+  };
+
+
+  const handleShowSettings = () => {
+    dispatch('handleMenu', {
+      showHome: false,
+      showProjects: false,
+      showExtendedView: false,
+      showSettings: true
+
     }); 
   };
 
@@ -32,12 +46,15 @@
     dispatch('handleMenu', {
       showHome: false,
       showProjects: false,
-      showExtendedView: true
+      showExtendedView: true,
+      showSettings: false
     }); 
   };
 
   const menuSettings = [
     { text: 'Projects', to: handleShowProjects },
+    { text: 'Parameters', to: handleShowSettings },
+
   ];
 
   const menuHome = [

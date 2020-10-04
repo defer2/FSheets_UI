@@ -42,36 +42,36 @@ https://github.com/defer2/FSheets_SettingsMS.git settings
 ###### sheets/ui/conf/configuration.js
 ```javascript
 export default{
-	"API_SETTINGS_URL":	"http://<Settings MS host>:<Settings MS port>"
+	"API_SETTINGS_URL":"http://<Settings MS host>:<Settings MS port>"
 }
 ```
 
 ###### sheets/tasks/conf/config.ini
 ```ini
 [PPM]
-USERNAME = ‘<ppm_username>’
-PASSWORD =  ‘<ppm_password>’
-URL = 'http://<ppm_host>:<ppm_port?/ppm/rest/v1/'
+USERNAME= <ppm_username>
+PASSWORD= <ppm_password>
+URL= http://<ppm_host>:<ppm_port?/ppm/rest/v1/
 
 [FTIMESHEETS]
-API_PROJECTS_URL = http://<Projects MS host>:<Settings MS port>
-API_TASKS_URL = http://<Tasks MS host>:<Settings MS port>
-API_TIMESHEETS_URL = http://<Timesheets MS host>:<Settings MS port>
-API_CLARITYPPM_URL = http://<ClarityPPMIntegration MS host>:<Settings MS port>
+API_TIMESHEETS_URL= http://<Timesheets MS host>:<Timesheets MS port>
+API_TASKS_URL= http://<Tasks MS host>:<Tasks MS port>
+API_PROJECTS_URL= http://<Projects MS host>:<Projects MS port>
+API_CLARITYPPM_URL= http://<ClarityPPMIntegration MS host>:<ClarityPPMIntegration MS port>
 ```
 
 ###### sheets/clarityppm/conf/config.ini
 ```ini
 [PPM]
-USERNAME = ‘<ppm_username>’
-PASSWORD =  ‘<ppm_password>’
-URL = 'http://<ppm_host>:<ppm_port?/ppm/rest/v1/'
+USERNAME= <ppm_username>
+PASSWORD= <ppm_password>
+URL= http://<ppm_host>:<ppm_port?/ppm/rest/v1/
 
 [FTIMESHEETS]
-API_PROJECTS_URL = http://<Projects MS host>:<Settings MS port>
-API_TASKS_URL = http://<Tasks MS host>:<Settings MS port>
-API_TIMESHEETS_URL = http://<Timesheets MS host>:<Settings MS port>
-API_CLARITYPPM_URL = http://<ClarityPPMIntegration MS host>:<Settings MS port>
+API_TIMESHEETS_URL= http://<Timesheets MS host>:<Timesheets MS port>
+API_TASKS_URL= http://<Tasks MS host>:<Tasks MS port>
+API_PROJECTS_URL= http://<Projects MS host>:<Projects MS port>
+API_CLARITYPPM_URL= http://<ClarityPPMIntegration MS host>:<ClarityPPMIntegration MS port>
 ```
 
 #### Configure settings database
@@ -85,9 +85,10 @@ mv sheets/settings/database/rename_to_settings.db sheets/settings/database/setti
 UPDATE 
 	settings
 SET
-	api_tasks_url = ‘http://<Tasks MS host>:<Settings MS port>’,
-	api_timesheets_url = ‘http://<Timesheets MS host>:<Settings MS port>’ ,
-	api_clarityppm_url = ‘http://<ClarityPPMIntegration MS host>:<Settings MS port>’,
+	api_timesheets_url = ‘http://<Timesheets MS host>:<Timesheets MS port>’ ,
+	api_tasks_url = ‘http://<Tasks MS host>:<Tasks MS port>’,
+	api_projects_url = ‘http://<Projects MS host>:<Projects MS port>’,
+	api_clarityppm_url = ‘http://<ClarityPPMIntegration MS host>:<ClarityPPMIntegration MS port>’,
 	ppm_url = ‘<ppm_url>’,
 	ppm_username = ‘<ppm_username>’,
 	ppm_password = ‘<ppm_password>’;

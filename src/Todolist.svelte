@@ -4,7 +4,10 @@
 	import RemoveTask from "./RemoveTask.svelte";
     import Button from "smelte/src/components/Button";
     import ContentLoader from 'svelte-content-loader';   
-
+	
+	export let API_PROJECTS_URL;
+	export let API_TASKS_URL;
+		
 
 	let showRemoveTask = false;
 	let projectsMenu = [];
@@ -43,7 +46,7 @@
 
 	/*API Functions*/
 	async function getProjectsTAPI() {
-		let url = __app.env.API_PROJECTS_URL+'/view';
+		let url = API_PROJECTS_URL+'/view';
 
 		const projects = await fetch(url)
 		.then(response => response)
@@ -56,7 +59,7 @@
 	}
 	
 	async function getTasksTAPI() {
-		let url = __app.env.API_TASKS_URL+'/view';
+		let url = API_TASKS_URL+'/view';
 
 		const tasks = await fetch(url)
 		.then(response => response)
@@ -67,7 +70,7 @@
 
 		for(let i = 0; i< tasks.length; i++){
 			const projectId = tasks[i].project_id;
-			let url = __app.env.API_PROJECTS_URL+'/view';        
+			let url = API_PROJECTS_URL+'/view';        
 			const parameterProjectId = projectId;
 			
 			url = url+'/'+parameterProjectId;
@@ -96,7 +99,7 @@
 	}
 
 	async function createTasksTAPI(taskName) {
-		let url = __app.env.API_TASKS_URL+'/create?name='+taskName;
+		let url = API_TASKS_URL+'/create?name='+taskName;
 
 		var requestOptions = {
 			method: 'POST',
@@ -112,7 +115,7 @@
 	}
 
 	async function deleteTasksTAPI(taskId) {
-		let url = __app.env.API_TASKS_URL+'/delete/'+taskId;
+		let url = API_TASKS_URL+'/delete/'+taskId;
 
 		var requestOptions = {
 			method: 'DELETE',
@@ -128,7 +131,7 @@
 	}	
 	
 	async function updateTaskTAPI(task) {
-		let url = __app.env.API_TASKS_URL+'/update/'+task.id;
+		let url = API_TASKS_URL+'/update/'+task.id;
 		let parameterName='name='+task.name;
 		let parameterStatus='status='+task.status;
 		let parameterDescription='description='+task.description;
@@ -155,15 +158,8 @@
 
 
 	let tasks = getTasksTAPI();
-
-	
 </script>
 
-
-<link
-  href="https://fonts.googleapis.com/icon?family=Material+Icons"
-  rel="stylesheet"
-/>
 <div id="todolist-container" class="todolist-container">
 	<div class="title">
 		<h5>Things to do</h5>

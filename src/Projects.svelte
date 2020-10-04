@@ -1,6 +1,11 @@
 <script>
     import CreateProject from "./CreateProject.svelte";
-    import Project from "./Project.svelte";
+	import Project from "./Project.svelte";
+
+	export let API_PROJECTS_URL;
+
+	
+
 
     const handleProjectAdded = (event) =>{
 		createProjectTAPI(event.detail.projectName, event.detail.projectColor);
@@ -34,7 +39,7 @@
 
     async function getProjectsTAPI() {
 		
-		let url = __app.env.API_PROJECTS_URL+'/view';
+		let url = API_PROJECTS_URL+'/view';
 
 		const projects = await fetch(url)
 		.then(response => response)
@@ -47,7 +52,7 @@
 	}
 
 	async function createProjectTAPI(projectName, projectColor) {
-        let url = __app.env.API_PROJECTS_URL+'/create';
+        let url = API_PROJECTS_URL+'/create';
         
         let parameterName='name='+projectName;
 		let parameterColor='color='+projectColor.replace('#','%23');
@@ -68,7 +73,7 @@
     }
     
     async function updateProjectTAPI(project) {
-		let url = __app.env.API_PROJECTS_URL+'/update/'+project.id;
+		let url = API_PROJECTS_URL+'/update/'+project.id;
 		let parameterName='name='+project.name;
 		let parameterStatus='status='+project.status;
 		let parameterColor='color='+project.color.replace('#','%23');

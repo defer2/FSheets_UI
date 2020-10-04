@@ -4,12 +4,11 @@
   "scripts": {
     "build": "rollup -c",
     "dev": "rollup -c -w",
-    "start": "sirv public --host 192.168.0.50 --port 5015"
+    "start": "sirv public --host 0.0.0.0"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^14.0.0",
     "@rollup/plugin-node-resolve": "^8.0.0",
-    "@rollup/plugin-postcss": "^2.0.5",
     "@rollup/plugin-replace": "^2.3.3",
     "@smui/chips": "^1.0.0",
     "dotenv": "^8.2.0",

@@ -1,7 +1,5 @@
 <script>
-    import TextField from "smelte/src/components/Textfield";
-    import Button from "smelte/src/components/Button";
-	import MenuProject from 'smelte/src/components/MenuProject';
+    import * as Smelte from 'smelte'
     import { createEventDispatcher } from 'svelte';
     import { Select, Checkbox } from "smelte";
 
@@ -148,13 +146,13 @@ const label = "A select";
     <!-- Checkbox -->
     <div class="checkbox">
         {#if taskStatus==1}
-            <Button id="chk-done-task-{taskId}" color='gray' text  small icon='done'
+            <Smelte.Button id="chk-done-task-{taskId}" color='gray' text  small icon='done'
                     on:click="{handleTaskDone}" />
         {:else if taskStatus==2}
-            <Button id="chk-done-task-{taskId}" color='gray' text  small icon='remove_circle_outline'
+            <Smelte.Button  id="chk-done-task-{taskId}" color='gray' text  small icon='remove_circle_outline'
             on:click="{handleTaskDone}" />
         {:else}
-            <Button id="chk-done-task-{taskId}" color='gray' text  small icon='undo'
+            <Smelte.Button  id="chk-done-task-{taskId}" color='gray' text  small icon='undo'
             on:click="{handleTaskDone}" />
         {/if}
     </div>
@@ -178,7 +176,7 @@ const label = "A select";
      <!-- Propiedades -->
      <div class="taskControls" id="taskControls">
         <div class="editButton">
-            <Button id="btn-edit-task-{taskId}" class="editButton" color='gray' text  small icon='edit'
+            <Smelte.Button  id="btn-edit-task-{taskId}" class="editButton" color='gray' text  small icon='edit'
                 on:click="{handleTaskEditable}" />
         </div>
         <div class="deleteButton"/>
@@ -189,17 +187,17 @@ const label = "A select";
 
      <!-- Color -->
     <div style="background-color:{projectColor};" class="projectColor" id="project-task-{taskId}" on:mouseout={handleProjectsMenuClose} on:mouseover={handleProjectsMenuOpen}>
-        <MenuProject bind:open {items} bind:value={selectedProject} itemColor={projectColor} on:click={handleTaskChangeProject} on:mouseover={handleProjectsMenuOpen}>
+        <Smelte.MenuProject bind:open {items} bind:value={selectedProject} itemColor={projectColor} on:click={handleTaskChangeProject} on:mouseover={handleProjectsMenuOpen}>
             <div slot="activator">
                 <div style='width:15px' id="btn-prop-task-{taskId}" >&nbsp;</div>
             </div>
-        </MenuProject>
+        </Smelte.MenuProject>
     </div>
 </div>
 
 {#if taskEditable}
     <div class="edit-task-name">
-        <TextField label="Task name" id="txt-task-{taskId}" style='background-color:white;' 
+        <Smelte.TextField label="Task name" id="txt-task-{taskId}" style='background-color:white;' 
         on:focus={handleEnter} size="60" 
         bind:value={taskName} data-projectId="{projectId}" data-name="{taskName}" data-id="{taskId}" data-status={taskStatus} data-description={taskDescription}  data-color="{projectColor}"/>
     </div>

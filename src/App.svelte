@@ -4,6 +4,9 @@
 	import Todolist from "./Todolist.svelte";	
 	import Header from "./Header.svelte";	
 	import TimesheetsExtendedView from "./TimesheetsExtendedView.svelte";
+import Button from "smelte/src/components/Button/Button.svelte";
+
+	export let configuration;
 
 	let showHome = true;
 	let showProjects = false;
@@ -27,21 +30,21 @@
 	{#if showProjects}
 		<content>
 			<section id='projects'>
-				<Projects/>
+				<Projects {...configuration}/>
 			</section>
 		</content>
 	{:else if showHome}
 		<content>
 			<section id='todolist'>
-				<Todolist/>
+				<Todolist {...configuration}/>
 			</section>
 			<section id='timesheet' style='margin-right:40px'>
-				<Timesheet/>
+				<Timesheet {...configuration}/>
 			</section>
 		</content>
 	{:else if showExtendedView}
 		<section id='timesheet' style='margin-right:40px'>
-			<TimesheetsExtendedView/>
+			<TimesheetsExtendedView {...configuration}/>
 		</section>
 	{/if}
 </main>

@@ -4,7 +4,7 @@ import commonjs from '@rollup/plugin-commonjs';
 import livereload from 'rollup-plugin-livereload';
 import { terser } from 'rollup-plugin-terser';
 
-import {config} from 'dotenv';
+// import {config} from 'dotenv';
 import replace from '@rollup/plugin-replace';
 
 
@@ -56,7 +56,10 @@ export default {
 			__app: JSON.stringify({
 			  env: {
 				isProd: production,
-				...config().parsed // attached the .env config
+				API_TASKS_URL: process.env.API_TASKS_URL,
+				API_TIMESHEETS_URL: process.env.API_TIMESHEETS_URL,
+				API_CLARITYPPM_URL: process.env.API_CLARITYPPM_URL,
+				API_PROJECTS_URL: process.env.API_PROJECTS_URL
 			  }
 			}),
 		  }),

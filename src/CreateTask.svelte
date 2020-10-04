@@ -1,6 +1,6 @@
 <script>
-	import Button from "smelte/src/components/Button";
-	import TextField from "smelte/src/components/Textfield/TextField.svelte";
+  	import * as Smelte from 'smelte'
+
 
 	import { createEventDispatcher } from 'svelte'
 	const dispatch = createEventDispatcher();
@@ -62,10 +62,10 @@
 
 <div class="container">
 	<div class="textfield">
-		<TextField bind:value={taskName} id='txtTaskname' on:focus={checkIfEnter} type="text" minlength="4" max="50" placeholder="add a new task" size="10" style='background-color:white;'/>
+		<Smelte.TextField bind:value={taskName} id='txtTaskname' on:focus={checkIfEnter} type="text" minlength="4" max="50" placeholder="add a new task" size="10" style='background-color:white;'/>
 	</div>
 	<div class="btnAdd py-2">
-		<Button id="btn-create-task" icon="add" small on:click="{addTask}"/>
+		<Smelte.Button id="btn-create-task" icon="add" small on:click="{addTask}"/>
 	</div>
 </div>
 

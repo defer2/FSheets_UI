@@ -2,8 +2,13 @@
 
     import Slot from "./Slot.svelte";	
     import Button from "smelte/src/components/Button";
-    import ContentLoader from 'svelte-content-loader';   
-    const resourceName = 'fernando.defalco'
+    import ContentLoader from 'svelte-content-loader';
+
+	export let API_TASKS_URL;
+	export let API_TIMESHEETS_URL;
+	export let API_CLARITYPPM_URL;	
+    export let RESOURCE_NAME;	
+
     let date=dateToShortFormat(getTodayDate());
     let timesheetToday = getTimesheetTAPI(date);
     
@@ -20,7 +25,7 @@
 
     /* API functions*/
     async function createTimesheetTAPI(date) {
-		let url = __app.env.API_TIMESHEETS_URL+'/timesheets';
+		let url = API_TIMESHEETS_URL+'/timesheets';
         const dateParameter = 'date='+date;
 
         url = url+'?'+dateParameter;
@@ -36,7 +41,7 @@
 	}
 
     async function getTimesheetTAPI(date){ 
-        let url = __app.env.API_TIMESHEETS_URL+'/timesheets/dates';        
+        let url = API_TIMESHEETS_URL+'/timesheets/dates';        
         const dateParameter = 'date='+date;
         
         url = url+'?'+dateParameter;
@@ -70,7 +75,7 @@
                 let subslot = subslots[j];
 
                 const taskId = subslot.task_id;
-                let url = __app.env.API_TASKS_URL+'/view/project';        
+                let url = API_TASKS_URL+'/view/project';        
                 const parameterTaskId = taskId;
                 
                 url = url+'/'+parameterTaskId;
@@ -108,7 +113,7 @@
 	}	
 
     async function createSubslotTAPI(slotId, taskId, taskName) {
-        let url = __app.env.API_TIMESHEETS_URL+'/subslots/quick';
+        let url = API_TIMESHEETS_URL+'/subslots/quick';
         
         const parameterSlotId='slot_id='+slotId;
 		const parameterTaskId='task_id='+taskId;
@@ -133,7 +138,7 @@
     }    
 
     async function updateSubslotTAPI(subslotId, slotId, startDate, endDate) {
-        let url = __app.env.API_TIMESHEETS_URL+'/subslots';
+        let url = API_TIMESHEETS_URL+'/subslots';
         
         const parameterSubslotId='/'+subslotId;
         const parameterSlotId='slot_id='+slotId;
@@ -161,8 +166,8 @@
 
     async function submitTimesheet(){
         timesheetToday.then(async (result) => {
-            let url = __app.env.API_CLARITYPPM_URL+'/timesheet';
-            result[0].resource_name = resourceName;
+            let url = API_CLARITYPPM_URL+'/timesheet';
+            result[0].resource_name = RESOURCE_NAME;
 
             var requestOptions = {
                 method: 'POST',

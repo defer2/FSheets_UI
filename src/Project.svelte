@@ -1,6 +1,5 @@
 <script>
-    import TextField from "smelte/src/components/Textfield";
-    import Button from "smelte/src/components/Button";
+    import * as Smelte from 'smelte'
     import { createEventDispatcher } from 'svelte';
     import {HsvPicker} from 'svelte-color-picker';
 
@@ -127,11 +126,11 @@
      <!-- Controls -->
      <div class="projectControls" id="projectControls">
         <div class="editButton">
-            <Button id="btn-edit-project-{projectId}" class="editButton" color='gray' text  small icon='edit'
+            <Smelte.Button id="btn-edit-project-{projectId}" class="editButton" color='gray' text  small icon='edit'
                 on:click="{handleProjectEditable}" />
         </div>
         <div class="inactivateButton">
-            <Button id="btn-inactive-project-{projectId}" color='gray' text  small icon='delete'
+            <Smelte.Button id="btn-inactive-project-{projectId}" color='gray' text  small icon='delete'
                     on:click="{handleProjectDone}" />
         </div>
     </div>
@@ -144,12 +143,12 @@
 {#if projectEditable}
     <div>
         <div class="edit-project-name">
-            <TextField label="Project name" id="txt-project-{projectId}" style='background-color:white'
+            <Smelte.TextField label="Project name" id="txt-project-{projectId}" style='background-color:white'
                 on:focus={handleEnter} size="20"
                 bind:value={projectName} data-name="{projectName}" data-id="{projectId}" data-status={projectStatus} data-color="{projectColor}"/>       
         </div>
         <div class="edit-project-name">
-            <TextField max-length="7" label="PPM Project Id" id="txt-project-{projectId}" style='background-color:white'
+            <Smelte.TextField max-length="7" label="PPM Project Id" id="txt-project-{projectId}" style='background-color:white'
                 on:focus={handleEnter} size="20"
                 bind:value={projectPPMId} />       
         </div>

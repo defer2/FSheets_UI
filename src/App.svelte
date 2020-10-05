@@ -8,10 +8,10 @@
 
 	export let configuration;
 
-	let showHome = false;
+	let showHome = true;
 	let showProjects = false;
 	let showExtendedView = false;
-	let showSettings = true;
+	let showSettings = false;
 
 	async function getSettingsTAPI(){ 
 		const api_old = configuration.API_SETTINGS_URL;

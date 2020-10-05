@@ -20,11 +20,11 @@
         if(!slotId) return;
             
         const draggingElement = document.getElementById(event.dataTransfer.getData('text'));
-        //const targetElement = event.target; 
     
         const taskName = draggingElement.dataset.name;
         const taskId = draggingElement.dataset.id;
         const taskColor = draggingElement.dataset.color;
+        const projectId = draggingElement.dataset.projectId;
 
         let subslot = subslotAlreadyExists(slotId, taskId)[0];
 
@@ -43,7 +43,8 @@
                 slotId: slotId,
                 subslotName: taskName,
                 taskId: taskId,
-                taskColor: taskColor
+                taskColor: taskColor,
+                projectId: projectId
             });
         }
         
@@ -192,11 +193,11 @@
                 <div class="slot-subslot" data-slotId="{slotId}">
                     <Subslot on:subslotsChangeSize={handleSubslotChangeSize} on:removeSubslotTimesheet 
                         subslotName={subslot.task_name} project="{subslot.project}" subslotId="{subslot.id}" slotId="{slotId}" 
-                        taskId="{subslot.task_id}"
+                        taskId="{subslot.task_id}" taskColor="{subslot.taskColor}}"
                         subslotStartDate={subslot.start_date} subslotEndDate={subslot.end_date} subslotHeight="{subslot.height}" />
                 </div>
             {/each}
-    </div>
+        </div>
     </div>
 </div>
 

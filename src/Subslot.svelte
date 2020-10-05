@@ -9,6 +9,7 @@
     export let slotId;
     export let taskId;
     export let subslotHeight;
+    export let taskColor;
     
     let resizable = false;
     let wasResized = false;

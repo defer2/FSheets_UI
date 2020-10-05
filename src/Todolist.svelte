@@ -8,11 +8,13 @@
 	export let API_PROJECTS_URL;
 	export let API_TASKS_URL;
 		
-
 	let showRemoveTask = false;
 	let projectsMenu = [];
-	let projects;
 	let showInactives = false;
+
+	let tasks = getTasksTAPI();
+	projectsMenu = getProjectsTAPI();
+
 	/*HANDLE Functions*/
 	const handleTaskDragStart = () => {showRemoveTask=true;};
 	const handleTaskDragEnd = () => {showRemoveTask=false;};
@@ -43,57 +45,40 @@
 	};
 
 
-
 	/*API Functions*/
 	async function getProjectsTAPI() {
 		let url = API_PROJECTS_URL+'/view';
 
-		const projects = await fetch(url)
-		.then(response => response)
+		let projects = fetch(url)
+		.then(response => response.json())
 		.then(data => {
-			return data.json();
+			projectsMenu = [];
+
+			Array.from(data).map(project => {
+					projectsMenu.push({
+						value: project.id,
+						text: project.name,
+						color: project.color
+					})
+				});
+			
+			projectsMenu = projectsMenu;
 		})
 		.catch(error => console.log('error', error));
-
-		return projects;
+		
+		return projectsMenu;
 	}
 	
 	async function getTasksTAPI() {
 		let url = API_TASKS_URL+'/view';
 
-		const tasks = await fetch(url)
+		let tasks = fetch(url)
 		.then(response => response)
 		.then(data => {
-			return data.json();
+			tasks = data.json();
+			return tasks;
 		})
 		.catch(error => console.log('error', error));
-
-		for(let i = 0; i< tasks.length; i++){
-			const projectId = tasks[i].project_id;
-			let url = API_PROJECTS_URL+'/view';        
-			const parameterProjectId = projectId;
-			
-			url = url+'/'+parameterProjectId;
-
-			const project = await fetch(url)
-				.then(response => response)
-				.then(data => {
-					return data.json();
-				}).catch(error => console.log('error', error));
-
-			tasks[i].project = project[0];
-		}
-
-		projects = await getProjectsTAPI();
-		projectsMenu = [];
-
-		Array.from(projects).map(project => {
-			projectsMenu.push({
-				value: project.id,
-				text: project.name,
-				color: project.color
-			})
-		})
 
 		return tasks;
 	}
@@ -152,12 +137,8 @@
 		tasks = getTasksTAPI();
 	}
 
-
-
 	/*MISC Functions*/
 
-
-	let tasks = getTasksTAPI();
 </script>
 
 <div id="todolist-container" class="todolist-container">
@@ -175,23 +156,31 @@
 
 
 	</div>
-	<div class="createTask"><CreateTask on:taskAdded="{handleTaskAdded}" /></div>
+	<div class="createTask">
+		<CreateTask on:taskAdded="{handleTaskAdded}" />
+	</div>
 	<div id="todolist-tasks" class="tasks">
 		<div class="todolist-task">
-			{#await tasks}
-				<div class="preloader">
-					<ContentLoader>
-						<rect x="0" y="30" rx="30" ry="30" width="10" height="10" />
-						<rect x="70" y="25" rx="3" ry="3" width=310 height="20" />
-					</ContentLoader>
-				</div>
-			{:then oTasks}
-				{#each oTasks as oTask}
-					{#if oTask.status < 3}
-						<Task taskId={oTask.id} taskName={oTask.name} taskProject={oTask.project} taskStatus={oTask.status} taskDescription={oTask.description}
-							on:taskDragStart={handleTaskDragStart} on:taskDragEnd={handleTaskDragEnd} on:taskChanged={handleTaskChanged} projects="{projectsMenu}" />
-					{/if}
-				{/each}
+			{#await projectsMenu}
+				<div/>
+			{:then projectsMenu}	
+				{#await tasks}
+					<div class="preloader">
+						<ContentLoader>
+							<rect x="0" y="30" rx="30" ry="30" width="10" height="10" />
+							<rect x="70" y="25" rx="3" ry="3" width=310 height="20" />
+						</ContentLoader>
+					</div>
+				{:then tasks}
+					{#each tasks as task}
+						{#if task.status < 3}
+							<Task taskId={task.id} taskName={task.name} taskProject={task.project} taskStatus={task.status} taskDescription={task.description}
+								on:taskDragStart={handleTaskDragStart} on:taskDragEnd={handleTaskDragEnd} on:taskChanged={handleTaskChanged} projects="{projectsMenu}" />
+						{/if}
+					{/each}
+				{:catch error}
+					<p style="color: red">{error.message}</p>
+				{/await}
 			{:catch error}
 				<p style="color: red">{error.message}</p>
 			{/await}			
@@ -200,23 +189,28 @@
 	{#if showInactives}
 		<div class="tasks">
 			<div class="todolist-task-inactive">
-				{#await tasks}
-					<div class="preloader">
-						<ContentLoader>
-							<rect x="0" y="30" rx="30" ry="30" width="10" height="10" />
-							<rect x="70" y="25" rx="3" ry="3" width=310 height="20" />
-						</ContentLoader>
-					</div>
-				{:then oTasks}
-					{#each oTasks as oTask}
-						{#if oTask.status > 2}
-							<Task taskId={oTask.id} taskName={oTask.name} taskProject={oTask.project} taskStatus={oTask.status} taskDescription={oTask.description}
-								on:taskChanged={handleTaskChanged} projects="{projectsMenu}" />
-						{/if}
-					{/each}
-				{:catch error}
-					<p style="color: red">{error.message}</p>
-				{/await}			
+				{#await projectsMenu}
+					<div/>
+				{:then projectsMenu}
+					{#await tasks}
+						<div class="preloader">
+							<ContentLoader>
+								<rect x="0" y="30" rx="30" ry="30" width="10" height="10" />
+								<rect x="70" y="25" rx="3" ry="3" width=310 height="20" />
+							</ContentLoader>
+						</div>
+					{:then tasks}
+						{#each tasks as task}
+								{#if task.status > 2}
+									<Task taskId={task.id} 
+										taskName={task.name} taskProject={task.project} taskStatus={task.status} taskDescription={task.description}
+										on:taskChanged={handleTaskChanged} projects="{projectsMenu}" />
+								{/if}
+						{/each}
+					{:catch error}
+						<p style="color: red">{error.message}</p>
+					{/await}
+				{/await}
 			</div>
 		</div>
 	{:else}

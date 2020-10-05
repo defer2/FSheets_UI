@@ -4,7 +4,6 @@
     import Button from "smelte/src/components/Button";
     import ContentLoader from 'svelte-content-loader';
 
-	export let API_TASKS_URL;
 	export let API_TIMESHEETS_URL;
 	export let API_CLARITYPPM_URL;	
     export let RESOURCE_NAME;	
@@ -34,10 +33,11 @@
 			redirect: 'follow'
 		};
 
-		const res = await fetch(url, requestOptions)
+		const res = fetch(url, requestOptions)
 		.then(response => response)
 		.then(result => result)
-		.catch(error => console.log('error', error));
+        .catch(error => console.log('error', error));
+        
 	}
 
     async function getTimesheetTAPI(date){ 
@@ -45,50 +45,15 @@
         const dateParameter = 'date='+date;
         
         url = url+'?'+dateParameter;
-        let timesheet = await fetch(url)
-            .then(response => response)
-            .then(data => data.json())
-            .then(timesheet => {  
-                return timesheet;
-            })
-            .catch(error => console.log('error', error));
-
-
-        if(timesheet.length == 0){
-            await createTimesheetTAPI(date);
-            
-            timesheet = await fetch(url)
+        let timesheet = fetch(url)
             .then(response => response)
             .then(data => data.json())
             .then(timesheet => {
+                ppm_synced = timesheet.ppm_synced == 1 ? false : true;
+                console.log(timesheet);
                 return timesheet;
             })
             .catch(error => console.log('error', error));
-        }
-
-        let Slots = timesheet[0].Slots;
-
-        for(let i = 0; i < Slots.length ; i++){
-            let subslots = Slots[i].Subslots;
-
-            for(let j = 0; j < subslots.length; j++){
-                let subslot = subslots[j];
-
-                const taskId = subslot.task_id;
-                let url = API_TASKS_URL+'/view/project';        
-                const parameterTaskId = taskId;
-                
-                url = url+'/'+parameterTaskId;
-
-                const project = await fetch(url)
-                    .then(response => response)
-                    .then(data => {
-                        return data.json();
-                    }).catch(error => console.log('error', error));
-
-                subslot.project = project;
-            }
-        }
 
         return timesheet;
     }
@@ -101,7 +66,7 @@
 			redirect: 'follow'
 		};
 
-		const res = await fetch(url, requestOptions)
+		const res = fetch(url, requestOptions)
             .then(response => response)
             .then(result => result)
             .catch(error => console.log('error', error));
@@ -112,21 +77,24 @@
         timesheetToday = timesheetToday
 	}	
 
-    async function createSubslotTAPI(slotId, taskId, taskName) {
+    async function createSubslotTAPI(slotId, taskId, taskName, taskColor, projectId) {
         let url = API_TIMESHEETS_URL+'/subslots/quick';
         
         const parameterSlotId='slot_id='+slotId;
 		const parameterTaskId='task_id='+taskId;
         const parameterTaskName='task_name='+taskName;
+        const parameterTaskColor='task_color='+taskColor.replace('#','%23');
 
-		url = url+'?'+parameterSlotId+'&'+parameterTaskId+'&'+parameterTaskName; //+'&'+parameterProjectId;
+        const parameterProjectId='project_id='+projectId;
+
+		url = url+'?'+parameterSlotId+'&'+parameterTaskId+'&'+parameterTaskName+'&'+parameterTaskColor+'&'+parameterProjectId;
 
 		var requestOptions = {
 			method: 'POST',
 			redirect: 'follow'
 		};
 
-		const res = await fetch(url, requestOptions)
+		const res = fetch(url, requestOptions)
 		.then(response => response)
 		.then(result => result)
 		.catch(error => console.log('error', error));
@@ -153,7 +121,7 @@
 			redirect: 'follow'
 		};
 
-		const res = await fetch(url, requestOptions)
+		const res = fetch(url, requestOptions)
 		.then(response => response)
 		.then(result => result)
         .catch(error => console.log('error', error));
@@ -165,9 +133,9 @@
     }
 
     async function submitTimesheet(){
-        timesheetToday.then(async (result) => {
+        timesheetToday.then(result => {
             let url = API_CLARITYPPM_URL+'/timesheet';
-            result[0].resource_name = RESOURCE_NAME;
+            result.resource_name = RESOURCE_NAME;
 
             var requestOptions = {
                 method: 'POST',
@@ -176,11 +144,11 @@
                     'Accept': 'application/json',
                     'Content-Type': 'application/json'
                 },  
-                body: JSON.stringify(result[0])
+                body: JSON.stringify(result)
             };
 
             ppm_syncing = true;
-            const res = await fetch(url, requestOptions)
+            const res = fetch(url, requestOptions)
             .then(response => {
                 ppm_syncing = false;
                 return response;
@@ -190,15 +158,6 @@
                 ppm_syncing = false;
                 console.log(e);
             });
-
-            if(res.ok){
-                ppm_synced = true; 
-                ppm_sync_error = false;
-            }else{
-                ppm_synced = false; 
-                ppm_sync_error = true;
-                console.log(res.error);
-            }
         })
     }
 
@@ -208,7 +167,8 @@
     const handleSubslotDragEnd = () => {showRemoveSubslot=false;};
     
     const handleSubslotAdded = (event) =>{
-        createSubslotTAPI(event.detail.slotId, event.detail.taskId, event.detail.subslotName);
+        createSubslotTAPI(event.detail.slotId, event.detail.taskId, event.detail.subslotName, 
+                            event.detail.taskColor, event.detail.projectId);
     };
 
     const handleSubslotChangeSize = (event) =>{
@@ -312,10 +272,10 @@
                             <div class="loader" />
                         {:then timesheetToday}
                             {#if !ppm_syncing && ppm_sync_error}
-                                <Button on:click={() => submitTimesheet()} icon="cloud_upload" light flat text color='error'/>
-                            {:else if !ppm_syncing && timesheetToday[0].ppm_synced == 1 && timesheetToday[0].ppm_last_sync || ppm_synced}
+                                    <Button on:click={() => submitTimesheet()} icon="cloud_upload" light flat text color='error'/>
+                            {:else if !ppm_syncing && timesheetToday.ppm_synced == 1 && timesheetToday.ppm_last_sync || ppm_synced}
                                 <Button on:click={() => submitTimesheet()} icon="cloud_upload" light flat text color='success'/>
-                            {:else if !ppm_syncing && timesheetToday[0].ppm_synced == 1 && !timesheetToday[0].ppm_last_sync}
+                            {:else if !ppm_syncing && timesheetToday.ppm_synced == 1 && !timesheetToday.ppm_last_sync}
                                 <Button on:click={() => submitTimesheet()} icon="cloud_upload" light flat text color='alert'/>
                             {:else if ppm_syncing}
                                 <div class="loader" />
@@ -371,7 +331,7 @@
             </div>
         {:then timesheetToday}
         <div class="slots">
-            {#each timesheetToday[0].Slots as slot}
+            {#each timesheetToday.Slots as slot}
                 {#if new Date(slot.hour).getHours() > 8 && new Date(slot.hour).getHours() < 19}
                     <Slot slotId="{slot.id}" hour="{slot.hour}" subslots={slot.Subslots}
                         on:subslotAdded={handleSubslotAdded} on:subslotDragStart={handleSubslotDragStart} on:subslotsChangeSize={handleSubslotChangeSize}

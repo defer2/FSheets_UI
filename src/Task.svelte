@@ -3,7 +3,6 @@
     import { createEventDispatcher } from 'svelte';
     import { Select } from "smelte";
 
-
     export let taskName;
     export let taskId;
     export let projectId;
@@ -14,17 +13,16 @@
     
     let taskEditable = false;
     let draggable = true;
-    let open = false;
-    let menuProjectTimer;
-    let selectedProject = "";
     let projectColor = taskProject ? taskProject.color : '';
-    let items = projects;
+    let projectName;
 
-	const handleTaskChangeProject = (e) => {
-        if(selectedProject)
+    taskProject.name ? projectName = taskProject.name : projectName = "Select a project...";
+    
+	const handleTaskChangeProject = (projectId) => {
+        if(projectId)
             dispatch('taskChanged', {
                 taskId: taskId,
-                taskProjectId: selectedProject,
+                taskProjectId: projectId,
                 taskName: '',
                 taskColor: '',
                 taskStatus: '',
@@ -62,7 +60,6 @@
 
         }
     };
-
 
     const handleTaskDone = (e) => {
         taskStatus < 3 ? taskStatus++ : taskStatus = 1;
@@ -102,44 +99,6 @@
 			});
 
     };
-
-    const handleProjectsMenuOpen = (e) => {
-        clearTimeout(menuProjectTimer);
-        menuProjectTimer = null;
-        const timeout = 250;
-        setTimeout(()=> open = true, timeout);
-    };
-
-    const handleProjectsMenuClose = (e) => {
-        const timeout = 250;
-        const closeMenu = () =>{
-            open = false;
-        };
-        menuProjectTimer = setTimeout(closeMenu, timeout);
-    };
-
-
-
-    let showList = false;
-
-    let value1 = "";
-  let value2 = "";
-  let value3 = "";
-  let value4 = "";
-
-
-
-let selectedItems = [];
-
-function toggle(i) {
-  return v => v.detail
-    ? selectedItems.push(i)
-    : selectedItems = selectedItems.filter(si => si !== i);
-}
-
-$: selectedLabel = selectedItems.map(i => i.text).join(", ");
-
-const label = "A select";
 </script>
 
 <div class="task-container">
@@ -158,8 +117,8 @@ const label = "A select";
     </div>
    
     <!-- Tarea -->
-    <div id="task-{taskId}" class="task"  draggable="true" 
-            data-projectId="{projectId}" data-id="{taskId}" data-status={taskStatus} data-description={taskDescription} data-color="{projectColor}" data-name="{taskName}" 
+    <div id="task-{taskId}" class="task" draggable="true" data-projectId="{projectId}"
+            data-id="{taskId}" data-status={projectId} data-description={taskDescription} data-color="{projectColor}" data-name="{taskName}" 
             on:dragstart={handleDragStart} on:dragend={handleDragEnd} >
             <!-- Texto -->
         {#if taskStatus==2}
@@ -180,21 +139,14 @@ const label = "A select";
                 on:click="{handleTaskEditable}" />
         </div>
         <div class="deleteButton"/>
-        <div class="properties">    
-           
-        </div>    
+        <div class="properties"/>    
     </div>
 
      <!-- Color -->
-    <div style="background-color:{projectColor};" class="projectColor" id="project-task-{taskId}" on:mouseout={handleProjectsMenuClose} on:mouseover={handleProjectsMenuOpen}>
-        <Smelte.Menu bind:open {items} bind:value={selectedProject} itemColor={projectColor} on:click={handleTaskChangeProject} on:mouseover={handleProjectsMenuOpen}>
-            <div slot="activator">
-                <div style='width:15px' id="btn-prop-task-{taskId}" >&nbsp;</div>
-            </div>
-        </Smelte.Menu>
-    </div>
+    <div id="btn-prop-task-{taskId}" style="background-color:{projectColor};" class="projectColor"/>
 </div>
 
+<!-- {#if true} -->
 {#if taskEditable}
     <div class="edit-task-name">
         <Smelte.TextField label="Task name" id="txt-task-{taskId}" style='background-color:white;' 
@@ -202,12 +154,21 @@ const label = "A select";
         bind:value={taskName} data-projectId="{projectId}" data-name="{taskName}" data-id="{taskId}" data-status={taskStatus} data-description={taskDescription}  data-color="{projectColor}"/>
     </div>
     <div class="edit-task-name">
-        <Select label="Project" {items} autocomplete on:change={v => (projectId = v.detail)} />
+        <small class="edit-project-color text-xs">Project name</small>        
+        <Select bind:value={projectId} label={projectName} items={projects}
+            forceBgColorWhite forceTextColorBlack
+            on:change={v => (handleTaskChangeProject(v.detail))} >            
+        </Select>
     </div>
 
+                <!-- prependClasses="{i => i.replaceAll('bg-gray-300', 'bg-white').replaceAll('bg-gray-100', 'bg-white')}" listClasses="{i => i.replaceAll('bg-gray-300', 'bg-white').replaceAll('bg-gray-100', 'bg-white')}" selectedClasses="{i => i.replaceAll('bg-gray-300', 'bg-white').replaceAll('bg-gray-100', 'bg-white')}" itemClasses="{i => i.replaceAll('bg-gray-300', 'bg-white').replaceAll('bg-gray-100', 'bg-white')}"  inputWrapperClasses="{i => i.replaceAll('bg-gray-300', 'bg-white').replaceAll('bg-gray-100', 'bg-white')}" inputClasses="{i => i.replaceAll('bg-gray-300', 'bg-white').replaceAll('bg-gray-100', 'bg-white')}" appendClasses="{i => i.replaceAll('bg-gray-300', 'bg-white').replaceAll('bg-gray-100', 'bg-white')}" -->
+
+
+    
 {/if}
 
 <style>
+
     .task-container{
         display: grid;
         grid-template-columns: 10% 74% 15% 1%;
@@ -257,11 +218,18 @@ const label = "A select";
     }
 
 
+    .edit-project-color{
+        width: 80%;
+        margin-left: 18px;
+        color: gray;
+    }  
     .edit-task-name{
         width: 80%;
-        height: 60px;
-        margin-left: 20px;
+        margin-left: 50px;
+        margin-bottom: 25px;
+        padding-top: -20px;
     }    
+    
 </style>
 
 

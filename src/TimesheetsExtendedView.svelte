@@ -12,7 +12,7 @@
         
 		url = url+'?'+startDateParamenter+'&'+endDateParamenter;
 		
-        let timesheets = await fetch(url)
+        let timesheets = fetch(url)
             .then(response => response)
             .then(data => {
                 return data.json();
@@ -23,9 +23,9 @@
 			let timesheet = timesheets[k];
 
 			if(timesheet.length == 0){
-				await createTimesheetTAPI(date);
+				createTimesheetTAPI(date);
 				
-				timesheet = await fetch(url)
+				timesheet = fetch(url)
 				.then(response => response)
 				.then(data => {
 					return data.json();
@@ -47,7 +47,7 @@
 					
 					url = url+'/'+parameterTaskId;
 
-					const project = await fetch(url)
+					const project = fetch(url)
 						.then(response => response)
 						.then(data => {
 							return data.json();

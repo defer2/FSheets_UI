@@ -12,6 +12,9 @@
 	let showProjects = false;
 	let showExtendedView = false;
 	let showSettings = false;
+	
+	let timesheetToday;
+	let todoList;
 
 	async function getSettingsTAPI(){ 
 		const api_old = configuration.API_SETTINGS_URL;
@@ -37,11 +40,17 @@
 	};
 
 	configuration = getSettingsTAPI();
+	
+
+
+
 </script>
 
 <svelte:head>
 	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
 </svelte:head>
+
+
 
 {#await configuration}
 	<div/>
@@ -92,7 +101,6 @@
 		margin: auto;
 		width: 92%;
 		padding-top: 50px;
-
 	}
 
 	header {

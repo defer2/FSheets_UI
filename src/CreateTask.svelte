@@ -1,7 +1,6 @@
 <script>
   	import * as Smelte from 'smelte'
 
-
 	import { createEventDispatcher } from 'svelte'
 	const dispatch = createEventDispatcher();
 	let taskName;

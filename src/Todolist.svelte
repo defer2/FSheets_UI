@@ -5,15 +5,18 @@
     import Button from "smelte/src/components/Button";
     import ContentLoader from 'svelte-content-loader';   
 	
+	import { todolistStore } from "./stores.js";
+
+
 	export let API_PROJECTS_URL;
 	export let API_TASKS_URL;
 		
 	let showRemoveTask = false;
 	let projectsMenu = [];
 	let showInactives = false;
-
-	let tasks = getTasksTAPI();
-	projectsMenu = getProjectsTAPI();
+	 
+	getTasksTAPI();
+	getProjectsTAPI();
 
 	/*HANDLE Functions*/
 	const handleTaskDragStart = () => {showRemoveTask=true;};
@@ -21,7 +24,8 @@
 	
 
 	const handleTaskAdded = (event) =>{
-		createTasksTAPI(event.detail.taskName);
+		//createTasksTAPI(event.detail.taskName);
+		todolistStore.addTask(event.detail.taskName);
 	};
 
 
@@ -31,16 +35,18 @@
         newTask.name = event.detail.taskName;
         newTask.id = event.detail.taskId;
 		newTask.description = event.detail.description;
-		newTask.color = event.detail.description;
+		newTask.color = event.detail.taskColor;
 		newTask.status = event.detail.taskStatus;
 		newTask.projectId = event.detail.taskProjectId;
 
-		updateTaskTAPI(newTask);
+		todolistStore.updateTask(newTask);
+		//updateTaskTAPI(newTask);
 	};
 	
 
 	const handleTaskRemoved = (event) =>{
-		deleteTasksTAPI(event.detail.taskId);
+		//deleteTasksTAPI(event.detail.taskId);
+		todolistStore.removeTask(event.detail.taskId);
 		showRemoveTask=false;
 	};
 
@@ -49,24 +55,22 @@
 	async function getProjectsTAPI() {
 		let url = API_PROJECTS_URL+'/view';
 
-		let projects = fetch(url)
-		.then(response => response.json())
-		.then(data => {
-			projectsMenu = [];
+		fetch(url)
+			.then(response => response.json())
+			.then(data => {
+				projectsMenu = [];
 
-			Array.from(data).map(project => {
-					projectsMenu.push({
-						value: project.id,
-						text: project.name,
-						color: project.color
-					})
-				});
-			
-			projectsMenu = projectsMenu;
-		})
-		.catch(error => console.log('error', error));
-		
-		return projectsMenu;
+				Array.from(data).map(project => {
+						projectsMenu.push({
+							value: project.id,
+							text: project.name,
+							color: project.color
+						})
+					});
+				
+				projectsMenu = projectsMenu;
+			})
+			.catch(error => console.log('error', error));		
 	}
 	
 	async function getTasksTAPI() {
@@ -74,8 +78,9 @@
 
 		let tasks = fetch(url)
 		.then(response => response)
-		.then(data => {
-			tasks = data.json();
+		.then(data => data.json())
+		.then(tasks => {
+			todolistStore.setFromFrontend(tasks);
 			return tasks;
 		})
 		.catch(error => console.log('error', error));
@@ -83,68 +88,11 @@
 		return tasks;
 	}
 
-	async function createTasksTAPI(taskName) {
-		let url = API_TASKS_URL+'/create?name='+taskName;
-
-		var requestOptions = {
-			method: 'POST',
-			redirect: 'follow'
-		};
-
-		const res = await fetch(url, requestOptions)
-		.then(response => response)
-		.then(result => result)
-		.catch(error => console.log('error', error));
-
-		tasks = getTasksTAPI();
-	}
-
-	async function deleteTasksTAPI(taskId) {
-		let url = API_TASKS_URL+'/delete/'+taskId;
-
-		var requestOptions = {
-			method: 'DELETE',
-			redirect: 'follow'
-		};
-
-		const res = await fetch(url, requestOptions)
-		.then(response => response)
-		.then(result => result)
-		.catch(error => console.log('error', error));
-
-		tasks = getTasksTAPI();
-	}	
-	
-	async function updateTaskTAPI(task) {
-		let url = API_TASKS_URL+'/update/'+task.id;
-		let parameterName='name='+task.name;
-		let parameterStatus='status='+task.status;
-		let parameterDescription='description='+task.description;
-		let parameterProjectId='project_id='+task.projectId;
-
-		url = url+'?'+parameterName+'&'+parameterStatus+'&'+parameterDescription+'&'+parameterProjectId;
-
-		var requestOptions = {
-			method: 'PUT',
-			redirect: 'follow',
-		};
-
-		const res = await fetch(url, requestOptions)
-		.then(response => response)
-		.then(result => result)
-		.catch(error => console.log('error', error));
-
-		tasks = getTasksTAPI();
-	}
-
-	/*MISC Functions*/
-
 </script>
-
 <div id="todolist-container" class="todolist-container">
 	<div class="title">
 		<h5>Things to do</h5>
-		{#await tasks}
+		{#await $todolistStore}
 			<div class="loader" />
 		{:then oTasks}
 			{#if showInactives}
@@ -164,7 +112,7 @@
 			{#await projectsMenu}
 				<div/>
 			{:then projectsMenu}	
-				{#await tasks}
+				{#await $todolistStore}
 					<div class="preloader">
 						<ContentLoader>
 							<rect x="0" y="30" rx="30" ry="30" width="10" height="10" />
@@ -192,7 +140,7 @@
 				{#await projectsMenu}
 					<div/>
 				{:then projectsMenu}
-					{#await tasks}
+					{#await $todolistStore}
 						<div class="preloader">
 							<ContentLoader>
 								<rect x="0" y="30" rx="30" ry="30" width="10" height="10" />
@@ -218,9 +166,9 @@
 			<div class="removeTask"><RemoveTask on:taskRemoved={handleTaskRemoved} /></div>
 		{/if}
 	{/if}
-
-	
 </div>
+
+
 
 <style>
 	.preloader{

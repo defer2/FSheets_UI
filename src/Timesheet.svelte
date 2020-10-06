@@ -4,12 +4,14 @@
     import Button from "smelte/src/components/Button";
     import ContentLoader from 'svelte-content-loader';
 
+    import { timesheetStore } from "./stores.js";
+    
 	export let API_TIMESHEETS_URL;
 	export let API_CLARITYPPM_URL;	
     export let RESOURCE_NAME;	
 
     let date=dateToShortFormat(getTodayDate());
-    let timesheetToday = getTimesheetTAPI(date);
+    export let timesheetToday = getTimesheetTAPI(date);
     
     let daysCounter = 0;
     let past = false;
@@ -23,23 +25,6 @@
     setTimesheetDaySettings(date);
 
     /* API functions*/
-    async function createTimesheetTAPI(date) {
-		let url = API_TIMESHEETS_URL+'/timesheets';
-        const dateParameter = 'date='+date;
-
-        url = url+'?'+dateParameter;
-		var requestOptions = {
-			method: 'POST',
-			redirect: 'follow'
-		};
-
-		const res = fetch(url, requestOptions)
-		.then(response => response)
-		.then(result => result)
-        .catch(error => console.log('error', error));
-        
-	}
-
     async function getTimesheetTAPI(date){ 
         let url = API_TIMESHEETS_URL+'/timesheets/dates';        
         const dateParameter = 'date='+date;
@@ -50,7 +35,7 @@
             .then(data => data.json())
             .then(timesheet => {
                 ppm_synced = timesheet.ppm_synced == 1 ? false : true;
-                console.log(timesheet);
+                timesheetStore.setFromFrontend(timesheet);
                 return timesheet;
             })
             .catch(error => console.log('error', error));
@@ -77,7 +62,7 @@
         timesheetToday = timesheetToday
 	}	
 
-    async function createSubslotTAPI(slotId, taskId, taskName, taskColor, projectId) {
+    async function createSubslotTAPI(slotId, taskId, taskName, taskColor) {
         let url = API_TIMESHEETS_URL+'/subslots/quick';
         
         const parameterSlotId='slot_id='+slotId;
@@ -85,9 +70,7 @@
         const parameterTaskName='task_name='+taskName;
         const parameterTaskColor='task_color='+taskColor.replace('#','%23');
 
-        const parameterProjectId='project_id='+projectId;
-
-		url = url+'?'+parameterSlotId+'&'+parameterTaskId+'&'+parameterTaskName+'&'+parameterTaskColor+'&'+parameterProjectId;
+		url = url+'?'+parameterSlotId+'&'+parameterTaskId+'&'+parameterTaskName+'&'+parameterTaskColor;
 
 		var requestOptions = {
 			method: 'POST',
@@ -258,9 +241,8 @@
         (myDate.getDay() == 6 || myDate.getDay() == 0) ? timesheetColor = 'rgb(236, 236, 236)' : timesheetColor = 'white';
     }
 
+
 </script>
-
-
     <div class="container">
         <div class="timesheet-header" style='background-color:{timesheetColor};'>
             <div class="ayer">
@@ -330,6 +312,7 @@
                 </ContentLoader>
             </div>
         {:then timesheetToday}
+
         <div class="slots">
             {#each timesheetToday.Slots as slot}
                 {#if new Date(slot.hour).getHours() > 8 && new Date(slot.hour).getHours() < 19}

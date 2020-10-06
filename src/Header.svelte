@@ -32,8 +32,6 @@
     };
 </script>
 
-<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
-
 <div class="main-header">
 	<div class="title" />
 	<div class="options">

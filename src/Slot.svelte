@@ -24,7 +24,6 @@
         const taskName = draggingElement.dataset.name;
         const taskId = draggingElement.dataset.id;
         const taskColor = draggingElement.dataset.color;
-        const projectId = draggingElement.dataset.projectId;
 
         let subslot = subslotAlreadyExists(slotId, taskId)[0];
 
@@ -43,8 +42,7 @@
                 slotId: slotId,
                 subslotName: taskName,
                 taskId: taskId,
-                taskColor: taskColor,
-                projectId: projectId
+                taskColor: taskColor
             });
         }
         

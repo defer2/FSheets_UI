@@ -16,18 +16,23 @@
     let projectColor = taskProject ? taskProject.color : '';
     let projectName;
 
-    taskProject.name ? projectName = taskProject.name : projectName = "Select a project...";
+    taskProject && taskProject.name ? projectName = taskProject.name : projectName = "Select a project...";
     
-	const handleTaskChangeProject = (projectId) => {
+	const handleTaskChangeProject = () => {
+        const projectIndex = projects.findIndex(project => project.value == projectId);
+    
         if(projectId)
             dispatch('taskChanged', {
                 taskId: taskId,
                 taskProjectId: projectId,
-                taskName: '',
-                taskColor: '',
-                taskStatus: '',
+                taskName: taskName,
+                taskColor: projects[projectIndex].color,
+                taskStatus: taskStatus,
                 taskDescription: ''
             });
+
+        projectColor = projects[projectIndex].color;
+        
     };
 
     const dispatch = createEventDispatcher();
@@ -50,12 +55,18 @@
             
             let parentDiv = document.getElementById(parentDivId);      
             parentDiv.draggable=draggable;
-
-            setTimeout(function() {
-                let txtField = document.getElementById(txtId);
+            
+            let txtField = document.getElementById(txtId);
+            
+            if(taskEditable){
+                setTimeout(function() {
+                    if(txtField)
+                        txtField.focus();
+                }, 200);
+            }else{
                 if(txtField)
-                    txtField.focus();
-            }, 200);
+                    txtField.blur();
+            }
         }catch(err){
 
         }
@@ -67,11 +78,11 @@
         try{
             dispatch('taskChanged', {
                 taskId: taskId,
-                taskName: '',
-                taskColor: '',
+                taskProjectId: projectId,
+                taskName: taskName,
+                taskColor: projectColor,
                 taskStatus: taskStatus,
-                taskDescription: '',
-                taskProjectId: '',
+                taskDescription: ''
             });
         }catch(error){
             console.log('error', error);
@@ -83,20 +94,20 @@
     const handleTaskChanged = (e) => {
         dispatch('taskChanged', {
             taskId: taskId,
+            taskProjectId: projectId,
             taskName: taskName,
-            taskColor: '',
-            taskStatus: '',
-            taskDescription: '',
-            taskProjectId: '',
+            taskColor: projectColor,
+            taskStatus: taskStatus,
+            taskDescription: ''
         });
     };
 
     const handleEnter = (evt) => {
-			evt.target.addEventListener('keyup',(e)=>{
-				if (e.key === 'Enter' || e.keyCode === 13) {
-                    handleTaskChanged(evt);
-				}
-			});
+        evt.target.addEventListener('keyup',(e)=>{
+            if (e.key === 'Enter' || e.keyCode === 13) {
+                handleTaskChanged(evt);
+            }
+        });
 
     };
 </script>
@@ -150,21 +161,16 @@
 {#if taskEditable}
     <div class="edit-task-name">
         <Smelte.TextField label="Task name" id="txt-task-{taskId}" style='background-color:white;' 
-        on:focus={handleEnter} size="60" 
+        on:focus={handleEnter} size="60" on:blur="{() => handleTaskChanged()}"
         bind:value={taskName} data-projectId="{projectId}" data-name="{taskName}" data-id="{taskId}" data-status={taskStatus} data-description={taskDescription}  data-color="{projectColor}"/>
     </div>
     <div class="edit-task-name">
         <small class="edit-project-color text-xs">Project name</small>        
         <Select bind:value={projectId} label={projectName} items={projects}
             forceBgColorWhite forceTextColorBlack
-            on:change={v => (handleTaskChangeProject(v.detail))} >            
+            on:change="{() => handleTaskChangeProject()}" >            
         </Select>
-    </div>
-
-                <!-- prependClasses="{i => i.replaceAll('bg-gray-300', 'bg-white').replaceAll('bg-gray-100', 'bg-white')}" listClasses="{i => i.replaceAll('bg-gray-300', 'bg-white').replaceAll('bg-gray-100', 'bg-white')}" selectedClasses="{i => i.replaceAll('bg-gray-300', 'bg-white').replaceAll('bg-gray-100', 'bg-white')}" itemClasses="{i => i.replaceAll('bg-gray-300', 'bg-white').replaceAll('bg-gray-100', 'bg-white')}"  inputWrapperClasses="{i => i.replaceAll('bg-gray-300', 'bg-white').replaceAll('bg-gray-100', 'bg-white')}" inputClasses="{i => i.replaceAll('bg-gray-300', 'bg-white').replaceAll('bg-gray-100', 'bg-white')}" appendClasses="{i => i.replaceAll('bg-gray-300', 'bg-white').replaceAll('bg-gray-100', 'bg-white')}" -->
-
-
-    
+    </div>    
 {/if}
 
 <style>

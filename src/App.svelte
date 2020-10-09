@@ -12,9 +12,6 @@
 	let showProjects = false;
 	let showExtendedView = false;
 	let showSettings = false;
-	
-	let timesheetToday;
-	let todoList;
 
 	async function getSettingsTAPI(){ 
 		const api_old = configuration.API_SETTINGS_URL;
@@ -25,6 +22,7 @@
 			.then(data => data.json())
 			.then(settings => {
 				settings[0].API_SETTINGS_URL = api_old;
+				console.log(settings);
 				return settings;
             })
             .catch(error => console.log('error', error));
@@ -40,9 +38,6 @@
 	};
 
 	configuration = getSettingsTAPI();
-	
-
-
 
 </script>
 

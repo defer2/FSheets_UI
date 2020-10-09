@@ -1,7 +1,12 @@
 <script>
     import Subslot from './Subslot.svelte'
-    import { createEventDispatcher } from 'svelte'
+    import { afterUpdate, createEventDispatcher } from 'svelte'
+    import { timesheetStore } from "./stores.js";
 
+
+    afterUpdate(async () => {
+        subslots = subslotsCalculateSize(subslots);
+    });
 
     const dispatch = createEventDispatcher();
 
@@ -9,8 +14,10 @@
     export let subslots;
     export let slotId;
 
+
     let slotStartDate = new Date(hour);
-    hour = slotStartDate.getHours();
+    let slotHour = JSON.stringify(slotStartDate.getHours());
+
     const minSubslotHeight = 35;
     const maxSlotHeight = 160;
 
@@ -20,51 +27,88 @@
         if(!slotId) return;
             
         const draggingElement = document.getElementById(event.dataTransfer.getData('text'));
-    
-        const taskName = draggingElement.dataset.name;
         const taskId = draggingElement.dataset.id;
-        const taskColor = draggingElement.dataset.color;
 
-        let subslot = subslotAlreadyExists(slotId, taskId)[0];
-
+        let subslot = subslotAlreadyExists(slotId, taskId);
         if(subslot){
-            const height = parseInt(subslot.dataset.height)+40;
-            subslot.dataset.height = height;
-            subslot.style = 'height: '+height+'px';
+            console.log('subslotAlreadyExists');
 
-            const subslots = subslotsChangeSize(slotId, subslot.dataset.subslotid);
-
-            dispatch('subslotsChangeSize', {
-                    subslots: subslots
-                });        
+            const subslots = subslotsChangeSize(subslot);
+            if (subslots){ //there is more than one subslot in slot
+                let subslotElement = document.getElementById('subslot-container-'+subslot.id);
+                const height = parseInt(subslotElement.dataset.height) + 40;
+                subslotElement.dataset.height = height;
+                subslotElement.style = 'height: '+height+'px';
+                dispatch('subslotsChangeSize', {
+                                subslots: subslots
+                            });    
+            }
+                    
         }else{
             dispatch('subslotAdded', {
-                slotId: slotId,
-                subslotName: taskName,
-                taskId: taskId,
-                taskColor: taskColor
+                slot_id: slotId,
+                task_id: taskId
             });
         }
         
     };
 
     const handleSubslotChangeSize = (e) => {
-        dispatch('subslotsChangeSize', {
-                subslots: subslotsChangeSize(e.detail.slotId, e.detail.subslotId)
+        dispatch('subslotChangeSize', {
+                subslots: subslotsChangeSize(e.detail)
             });        
     };
 
     /* MISC FUNCTIONS */
-
     const subslotAlreadyExists = (slotId, taskId) => {
-        const subslots = Array.from(document.getElementById('slot-'+slotId).getElementsByClassName("subslot-container"));
+        const slotIndex = $timesheetStore.Slots.findIndex(slot => slot.id == slotId);
+        const subslotIndex = $timesheetStore.Slots[slotIndex].Subslots.findIndex(t => t.task_id == taskId);
+
+        let subslot = $timesheetStore.Slots[slotIndex].Subslots[subslotIndex];
+        return (subslot ? subslot : false);
+    };
+
+    const subslotsChangeSize = (subslot) => {
+        console.log('subslotsChangeSize');
+        const slotId = subslot.slot_id;
+        const slotIndex = $timesheetStore.Slots.findIndex(slot => slot.id == slotId);
+        const subslots = $timesheetStore.Slots[slotIndex].Subslots;
+
+        if (subslots.length === 1) return;
         
-        let subslot;
-        if(subslots && subslots.length > 0){
-            subslot = subslots.filter(subslot => subslot.dataset.taskid === taskId);
-            return subslot;
-        }
-        return false;
+        console.log('modifying subslot height');
+
+        let totalHeight = 0;
+        subslots.forEach(function(tsubslot) {
+            const height = (() => {
+                return tsubslot.id == subslot.id ? parseInt(subslot.height) : parseInt(tsubslot.height)
+            })();
+            totalHeight += parseInt(height);
+        });
+
+        //Calculate minutes for each subslot
+        let oSubslots = [];
+        let startDate = new Date($timesheetStore.Slots[slotIndex].hour);
+        subslots.forEach(function(tsubslot) {
+            const height = (() => {
+                return tsubslot.id == subslot.id ? parseInt(subslot.height) : parseInt(tsubslot.height)
+            })();
+
+            const minutes = 60 * (height / totalHeight);
+            let endDate = addMinutes(startDate, minutes);
+
+            oSubslots.push({
+                slot_id: slotId,
+                id: tsubslot.id,
+                start_date: formatDate(startDate),
+                end_date: formatDate(subSeconds(endDate,1)),
+            });
+
+            startDate = endDate;
+        });
+
+        debugger;
+        return oSubslots;
     };
 
     const addMinutes = (date, minutes) => {
@@ -91,7 +135,6 @@
         let strTime = hours + ':' + minutes + ':' + seconds;
         return date.getFullYear() + "-" + month + "-" + day + " " + strTime;
     };
-
 
     const subslotsCalculateSize = (subslots) => {
         if(!subslots || subslots.length < 1) return subslots;
@@ -124,44 +167,10 @@
         return subslots;
     };
 
-    const subslotsChangeSize = (slotId, subslotId) => {
-        const subslots = Array.from(document.getElementById('slot-'+slotId).getElementsByClassName("subslot-container"));
-        
-        let totalHeight = 0;
-        subslots.forEach(function(subslot) {
-            totalHeight += parseInt(subslot.getAttribute('data-height'));
-        });
-
-
-        let oSubslots = new Array();
-        let startDate = new Date(document.getElementById('slot-'+slotId).getAttribute('data-startdate'));
-        subslots.forEach(function(subslot) {
-            const height = parseInt(subslot.getAttribute('data-height'));
-            const minutes = 60 * (height / totalHeight);
-            let endDate = addMinutes(startDate, minutes);
-
-            const oSubslot = {
-                slotId: slotId,
-                id: subslot.dataset.subslotid,
-                startDate: formatDate(startDate),
-                endDate: formatDate(subSeconds(endDate,1)),
-                minutes: minutes,
-                project: JSON.parse(subslot.dataset.project),
-            }; 
-
-            startDate = endDate;
-            oSubslots.push(oSubslot);
-        });
-
-
-        return oSubslots;
-    };
-
     const subslotCalculatePercentage = (subslot) => { 
         return Math.round(((new Date(subslot.end_date) - new Date(subslot.start_date) % 86400000) % 3600000) / 60000) * 100 / 60 ;
     };
 
-    subslots = subslotsCalculateSize(subslots);  
 </script>
 
 
@@ -185,14 +194,14 @@
 
 <div>
     <div class="slot" id="slot-{slotId}" data-slotId="{slotId}" data-startdate={slotStartDate} ondragover="return false;" on:drop={event => handleSubslotAdded(event,slotId)}>
-        <div class="hour" data-slotId="{slotId}"><h6 data-slotId="{slotId}"><strong>{hour}</strong></h6></div>
+        <div class="hour" data-slotId="{slotId}"><h6 data-slotId="{slotId}"><strong>{slotHour}</strong></h6></div>
         <div class="subslots" id="subslots-of-slot-{slotId}" data-slotId="{slotId}">
             {#each subslots as subslot}
                 <div class="slot-subslot" data-slotId="{slotId}">
-                    <Subslot on:subslotsChangeSize={handleSubslotChangeSize} on:removeSubslotTimesheet 
+                    <Subslot on:subslotChangeSize={(e) => handleSubslotChangeSize(e)} on:removeSubslotTimesheet 
                         subslotName={subslot.task_name} project="{subslot.project}" subslotId="{subslot.id}" slotId="{slotId}" 
                         taskId="{subslot.task_id}" taskColor="{subslot.taskColor}}"
-                        subslotStartDate={subslot.start_date} subslotEndDate={subslot.end_date} subslotHeight="{subslot.height}" />
+                        subslotStartDate={subslot.start_date} subslotEndDate={subslot.end_date} subslotHeight="{subslot.height || minSubslotHeight}" />
                 </div>
             {/each}
         </div>

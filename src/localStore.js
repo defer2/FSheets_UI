@@ -21,6 +21,22 @@ async function getSettingsTAPI(){
 
 configuration = getSettingsTAPI();
 
+const formatDate = (date) => {
+  let hours = date.getHours();
+  let minutes = date.getMinutes();
+  let seconds = date.getSeconds();
+  let month = date.getMonth()+1;
+  let day = date.getDate();
+
+  month = month < 10 ? '0'+month : month;
+  day = day < 10 ? '0'+day : day;
+  minutes = minutes < 10 ? '0'+minutes : minutes;
+  hours = hours < 10 ? '0'+hours : hours;
+  seconds = seconds < 10 ? '0'+seconds : seconds;
+
+  let strTime = hours + ':' + minutes + ':' + seconds;
+  return date.getFullYear() + "-" + month + "-" + day + " " + strTime;
+};
 
 export const localStore = (key, initial) => {                
 
@@ -200,22 +216,113 @@ export const localStoreTimesheet = (key, initial) => {
   let saved = toObj(localStorage.getItem(key));      
   const store = writable(saved);
 
-  function addSubslot(value) {
+  function addSubslot(task) {
     saved = toObj(localStorage.getItem(key));
-    saved.push({name: value});
+    
+    const slotIndex = saved.Slots.findIndex(slot => slot.id == task.slot_id);
+    saved.Slots[slotIndex].Subslots.push(task);
 
     setFromFrontend(saved);
-    createTaskTAPI(value);
+    createSubslotTAPI(task);
   }
 
-  async function createSubslotTAPI(slotId, taskId, taskName, taskColor) {
+  function removeSubslot(subslot) {
+    saved = toObj(localStorage.getItem(key));
+
+    const slotIndex = saved.Slots.findIndex(slot => slot.id == subslot.slot_id);
+    const subslotIndex = saved.Slots[slotIndex].Subslots.findIndex(t => t.id == subslot.id);
+
+    const removedSubslot = saved.Slots[slotIndex].Subslots[subslotIndex];
+    saved.Slots[slotIndex].Subslots.splice(subslotIndex, 1);
+
+    setFromFrontend(saved);
+    deleteSubslotTAPI(removedSubslot);
+  }
+
+  function updateSubslot(subslot) {
+    saved = toObj(localStorage.getItem(key));
+
+    const slotIndex = saved.Slots.findIndex(slot => slot.id == subslot.slot_id);
+    const subslotIndex = saved.Slots[slotIndex].Subslots.findIndex(t => t.id == subslot.id);
+
+    const updatedSubslot = saved.Slots[slotIndex].Subslots[subslotIndex];
+    saved.Slots[slotIndex].Subslots[subslotIndex] = subslot;
+
+    setFromFrontend(saved);
+    updateSubslotTAPI(subslot, updatedSubslot) ;
+  }
+
+  async function updateSubslotTAPI(subslot, updatedSubslot){
+    configuration.then(configuration => {
+
+      let url = configuration.API_TIMESHEETS_URL+'/subslots';
+      
+      const parameterSubslotId='/'+subslot.id;
+      const parameterSlotId='slot_id='+subslot.slot_id;
+      const parameterStartDate='start_date='+formatDate(new Date(subslot.start_date));
+      const parameterEndDate='end_date='+formatDate(new Date(subslot.end_date));
+      const parameterOperation='operation=change_dates';
+
+      url += parameterSubslotId+'?'+parameterSlotId+'&'+parameterStartDate+'&'+parameterEndDate+'&'+parameterOperation; 
+      
+    var requestOptions = {
+      method: 'PUT',
+      redirect: 'follow'
+    };
+
+    fetch(url, requestOptions)
+    .then(response => response.json())
+    .then(data => data[0])
+    // .then(newSubslot => {
+    //   const slotIndex = saved.Slots.findIndex(slot => slot.id == newSubslot.slot_id);
+    //   const subslotIndex = saved.Slots[slotIndex].Subslots.findIndex(subslot => subslot.id == newSubslot.id);
+
+    //   saved.Slots[slotIndex].Subslots[subslotIndex] = newSubslot;
+    //   setFromBackend(saved);
+    // })        
+    .catch(error => {
+      console.log('error updating subslot from backend', error);
+      const slotIndex = saved.Slots.findIndex(slot => slot.id == updatedSubslot.slot_id);
+      const subslotIndex = saved.Slots[slotIndex].Subslots.findIndex(subslot => subslot.id == updatedSubslot.id);
+
+      saved.Slots[slotIndex].Subslots[subslotIndex] = updatedSubslot;
+      setFromBackend(saved);
+    });
+  }); 
+
+  //if(res.ok) ppm_synced = false;
+}
+
+  async function deleteSubslotTAPI(removedSubslot) {
+    configuration.then(configuration => {
+      let url = configuration.API_TIMESHEETS_URL+'/subslots/'+removedSubslot.id;
+
+      var requestOptions = {
+        method: 'DELETE',
+        redirect: 'follow'
+      };
+
+      fetch(url, requestOptions)
+        .then(response => response)
+        .catch(error => {
+          console.log('error removing subslot from backend', error);
+          const slotIndex = saved.Slots.findIndex(slot => slot.id == removedSubslot.slot_id);
+          saved.Slots[slotIndex].Subslots.push(removedSubslot);
+          setFromBackend(saved);
+      }); 
+
+    //if(res.ok) ppm_synced = false;
+    });
+  }
+
+  async function createSubslotTAPI(task) {
     configuration.then(configuration => {
       let url = configuration.API_TIMESHEETS_URL+'/subslots/quick';
 
-      const parameterSlotId='slot_id='+slotId;
-      const parameterTaskId='task_id='+taskId;
-      const parameterTaskName='task_name='+taskName;
-      const parameterTaskColor='task_color='+taskColor.replace('#','%23');
+      const parameterSlotId='slot_id='+task.slot_id;
+      const parameterTaskId='task_id='+task.task_id;
+      const parameterTaskName='task_name='+task.task_name;
+      const parameterTaskColor='task_color='+task.project.color.replace('#','%23');
 
       url = url+'?'+parameterSlotId+'&'+parameterTaskId+'&'+parameterTaskName+'&'+parameterTaskColor;
 
@@ -224,40 +331,28 @@ export const localStoreTimesheet = (key, initial) => {
         redirect: 'follow'
       };
 
-      fetch(url, requestOptions)
-        .then(response => response)
-        .then(result => result)
-        .catch(error => console.log('error', error));
-    });
-
-}    
-
-  async function createTaskTAPI(taskName){
-    configuration.then(configuration => {
-      let url = configuration.API_TASKS_URL+'/create?name='+taskName;
-
-      var requestOptions = {
-        method: 'POST',
-        redirect: 'follow'
-      };
-
+      
       fetch(url, requestOptions)
         .then(response => response.json())
         .then(data => data[0])
-        .then(newTask => {
-          const taskIndex = saved.findIndex(task => task.name == taskName);
-          saved[taskIndex] = newTask;
+        .then(newSubslot => {
+          const slotIndex = saved.Slots.findIndex(slot => slot.id == task.slot_id);
+          const subslotIndex = saved.Slots[slotIndex].Subslots.findIndex(subslot => subslot.task_id == task.task_id);
+
+          saved.Slots[slotIndex].Subslots[subslotIndex].id = newSubslot.id;
           setFromBackend(saved);
         })
         .catch(error => {
-          console.log('error adding task to backend', error);
-          const taskIndex = saved.findIndex(task => task.name == taskName);
-          saved.splice(taskIndex, 1);
+          console.log('error adding subslot to backend', error);
+          const slotIndex = saved.Slots.findIndex(slot => slot.id == task.slot_id);
+          const subslotIndex = saved.Slots[slotIndex].Subslots.findIndex(subslot => subslot.task_id == task.task_id);
+
+          saved.Slots[slotIndex].Subslots.splice(subslotIndex, 1);
           setFromBackend(saved);
-        }
-          );
+        });
     });
-  }
+  }    
+
   
   function setFromFrontend(value) {
     localStorage.setItem(key, toString(value));
@@ -271,6 +366,9 @@ export const localStoreTimesheet = (key, initial) => {
 
   return {
     subscribe: store.subscribe,
+    addSubslot,
+    removeSubslot,
+    updateSubslot,
     setFromFrontend,
     update: store.update
   }

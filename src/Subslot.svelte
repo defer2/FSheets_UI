@@ -1,6 +1,6 @@
 <script>
     import Button from "smelte/src/components/Button";
-    import { createEventDispatcher } from 'svelte'
+    import { afterUpdate, createEventDispatcher } from 'svelte'
     import { watchResize } from "svelte-watch-resize";
 
     export let subslotName;
@@ -10,42 +10,43 @@
     export let taskId;
     export let subslotHeight;
     export let taskColor;
-    
+
     let resizable = false;
-    let wasResized = false;
     let setInitialSizes = false;
     const dispatch = createEventDispatcher();
     
-    const handleRemovesubslotTimesheet = () => {        
+    const handleRemovesubslotTimesheet = () => {       
         dispatch('removeSubslotTimesheet', {
-            subslotId: subslotId,
-            slotId: slotId
+            id: subslotId,
+            slot_id: slotId
         });
     };
 
     const handleResizeOption = () => {
         resizable = !resizable;
     };
-
-    const handleMouseUp = () => {
-        if(wasResized){
-            dispatch('subslotsChangeSize', {
-                    slotId: slotId,
-                    subslotId: subslotId
-                }); 
-            wasResized = false;
-        }
-    };
     
+   
+    let timeout;
     const handleResize = (node) => {
         if(!setInitialSizes){
             setInitialSizes = true;
             subslotHeight = node.clientHeight;
         }else{
-            wasResized = true;
-            node.setAttribute('data-height',node.clientHeight+1);
+            if(resizable){
+                clearTimeout(timeout);
+                timeout = setTimeout(() =>{
+                        node.setAttribute('data-height',node.clientHeight+1);
+                        dispatch('subslotChangeSize', {
+                            id: subslotId,
+                            slot_id: slotId,
+                            height: node.clientHeight+1
+                        }); 
+                    },500);
+            }
         }
     };
+
 </script>
 
 <style>
@@ -98,11 +99,11 @@
 
 </style>
 
-<div id={'subslot-container-'+subslotId} 
-    data-slotId="{slotId}" data-taskId="{taskId}" data-height="{subslotHeight}" data-subslotId="{subslotId}" 
-    data-project="{JSON.stringify(project)}"
-    class="{resizable === true ? 'subslot-container resize': 'subslot-container'}" style="height: {subslotHeight}px;" 
-    on:mouseover="{handleResizeOption}" on:mouseup="{handleMouseUp}" on:mouseout="{handleResizeOption}" use:watchResize="{handleResize}">
+<div id={'subslot-container-'+subslotId} class="{resizable === true ? 'subslot-container resize': 'subslot-container'}"
+    data-subslotId="{subslotId}" data-slotId="{slotId}" data-taskId="{taskId}" 
+    data-name="{subslotName}" data-project="{JSON.stringify(project)}" data-color="{project.color}"
+    data-height="{subslotHeight}" style="height: {subslotHeight}px;" 
+    on:mouseover="{() => handleResizeOption()}" on:mouseout="{() => handleResizeOption()}" use:watchResize="{(node) => handleResize(node)}">
 
     <!-- Tarea -->   
     <div id="subslot-{subslotId}" class="subslot" data-name="{subslotName}" data-slotId="{slotId}" 

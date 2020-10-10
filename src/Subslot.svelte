@@ -1,8 +1,10 @@
 <script>
     import Button from "smelte/src/components/Button";
-    import { afterUpdate, createEventDispatcher } from 'svelte'
+    import { createEventDispatcher } from 'svelte'
     import { watchResize } from "svelte-watch-resize";
-
+	import { slide } from 'svelte/transition';
+    import { quintOut } from 'svelte/easing';
+    
     export let subslotName;
     export let subslotId;
     export let project;
@@ -103,7 +105,7 @@
     data-subslotId="{subslotId}" data-slotId="{slotId}" data-taskId="{taskId}" 
     data-name="{subslotName}" data-project="{JSON.stringify(project)}" data-color="{project.color}"
     data-height="{subslotHeight}" style="height: {subslotHeight}px;" 
-    on:mouseover="{() => handleResizeOption()}" on:mouseout="{() => handleResizeOption()}" use:watchResize="{(node) => handleResize(node)}">
+    on:mouseover="{() => handleResizeOption()}" on:mouseout="{() => handleResizeOption()}" use:watchResize="{(node) => handleResize(node)}" transition:slide="{{delay: 150, duration: 500, easing: quintOut }}">
 
     <!-- Tarea -->   
     <div id="subslot-{subslotId}" class="subslot" data-name="{subslotName}" data-slotId="{slotId}" 

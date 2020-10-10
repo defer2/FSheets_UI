@@ -42,12 +42,16 @@
                 dispatch('subslotsChangeSize', {
                                 subslots: subslots
                             });    
-            }
-                    
+            }                
         }else{
+            const slotIndex = $timesheetStore.Slots.findIndex(slot => slot.id == slotId);
+            let startDate = new Date($timesheetStore.Slots[slotIndex].hour);
+
             dispatch('subslotAdded', {
                 slot_id: slotId,
-                task_id: taskId
+                task_id: taskId,
+                start_date: formatDate(startDate),
+                end_date: formatDate(subSeconds(addMinutes(startDate, 59),-59))
             });
         }
         
@@ -133,7 +137,7 @@
         seconds = seconds < 10 ? '0'+seconds : seconds;
 
         let strTime = hours + ':' + minutes + ':' + seconds;
-        return date.getFullYear() + "-" + month + "-" + day + " " + strTime;
+        return date.getFullYear() + "-" + month + "-" + day + "T" + strTime;
     };
 
     const subslotsCalculateSize = (subslots) => {

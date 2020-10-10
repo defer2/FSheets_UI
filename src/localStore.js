@@ -35,7 +35,7 @@ const formatDate = (date) => {
   seconds = seconds < 10 ? '0'+seconds : seconds;
 
   let strTime = hours + ':' + minutes + ':' + seconds;
-  return date.getFullYear() + "-" + month + "-" + day + " " + strTime;
+  return date.getFullYear() + "-" + month + "-" + day + "T" + strTime;
 };
 
 export const localStore = (key, initial) => {                
@@ -273,13 +273,10 @@ export const localStoreTimesheet = (key, initial) => {
     fetch(url, requestOptions)
     .then(response => response.json())
     .then(data => data[0])
-    // .then(newSubslot => {
-    //   const slotIndex = saved.Slots.findIndex(slot => slot.id == newSubslot.slot_id);
-    //   const subslotIndex = saved.Slots[slotIndex].Subslots.findIndex(subslot => subslot.id == newSubslot.id);
-
-    //   saved.Slots[slotIndex].Subslots[subslotIndex] = newSubslot;
-    //   setFromBackend(saved);
-    // })        
+    .then(() => {
+      saved.ppm_synced = 0;
+      setFromBackend(saved);
+    })        
     .catch(error => {
       console.log('error updating subslot from backend', error);
       const slotIndex = saved.Slots.findIndex(slot => slot.id == updatedSubslot.slot_id);
@@ -290,7 +287,7 @@ export const localStoreTimesheet = (key, initial) => {
     });
   }); 
 
-  //if(res.ok) ppm_synced = false;
+  
 }
 
   async function deleteSubslotTAPI(removedSubslot) {
@@ -304,14 +301,16 @@ export const localStoreTimesheet = (key, initial) => {
 
       fetch(url, requestOptions)
         .then(response => response)
+        .then(() => {
+          saved.ppm_synced = 0;
+          setFromBackend(saved);
+        }) 
         .catch(error => {
           console.log('error removing subslot from backend', error);
           const slotIndex = saved.Slots.findIndex(slot => slot.id == removedSubslot.slot_id);
           saved.Slots[slotIndex].Subslots.push(removedSubslot);
           setFromBackend(saved);
       }); 
-
-    //if(res.ok) ppm_synced = false;
     });
   }
 
@@ -340,6 +339,8 @@ export const localStoreTimesheet = (key, initial) => {
           const subslotIndex = saved.Slots[slotIndex].Subslots.findIndex(subslot => subslot.task_id == task.task_id);
 
           saved.Slots[slotIndex].Subslots[subslotIndex].id = newSubslot.id;
+          saved.ppm_synced = 0;
+
           setFromBackend(saved);
         })
         .catch(error => {
@@ -357,6 +358,11 @@ export const localStoreTimesheet = (key, initial) => {
   function setFromFrontend(value) {
     localStorage.setItem(key, toString(value));
     return store.set(value);
+  }
+  
+  function set(value) {
+    localStorage.setItem(key, toString(value));
+    return store.set(value);
 	}
 
   function setFromBackend(value) {
@@ -369,6 +375,7 @@ export const localStoreTimesheet = (key, initial) => {
     addSubslot,
     removeSubslot,
     updateSubslot,
+    set,
     setFromFrontend,
     update: store.update
   }

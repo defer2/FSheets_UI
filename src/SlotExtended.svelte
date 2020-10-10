@@ -99,7 +99,7 @@
         seconds = seconds < 10 ? '0'+seconds : seconds;
 
         let strTime = hours + ':' + minutes + ':' + seconds;
-        return date.getFullYear() + "-" + month + "-" + day + " " + strTime;
+        return date.getFullYear() + "-" + month + "-" + day + "T" + strTime;
     };
 
 

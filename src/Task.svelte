@@ -5,8 +5,8 @@
 
     export let taskName;
     export let taskId;
-    export let projectId;
     export let taskProject;
+    export let projectId = taskProject ? taskProject.id : '';
     export let taskDescription;
     export let taskStatus;
     export let projects;
@@ -129,7 +129,7 @@
    
     <!-- Tarea -->
     <div id="task-{taskId}" class="task" draggable="true" data-projectId="{projectId}"
-            data-id="{taskId}" data-status={projectId} data-description={taskDescription} data-color="{projectColor}" data-name="{taskName}" 
+            data-id="{taskId}" data-status={taskStatus} data-description={taskDescription} data-color="{projectColor}" data-name="{taskName}" 
             on:dragstart={handleDragStart} on:dragend={handleDragEnd} >
             <!-- Texto -->
         {#if taskStatus==2}

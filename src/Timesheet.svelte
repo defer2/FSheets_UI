@@ -20,9 +20,7 @@
     let timesheetTitle;
     let timesheetSubtitle;
     let timesheetColor;
-    let ppm_synced = false;
-    let ppm_sync_error = false;
-    let ppm_syncing = false;
+
 
     let date=dateToShortFormat(getTodayDate());
     setTimesheetDaySettings(date);
@@ -35,13 +33,15 @@
     const handleSubslotDragEnd = () => {showRemoveSubslot=false;};
     
     const handleSubslotAdded = (event) =>{
-        let task = Object.assign({}, $todolistStore.filter(obj => { return obj.id == event.detail.task_id})[0]);
-        task.slot_id = event.detail.slot_id;
-        task.task_id = task.id;
-        task.task_name = task.name;
-        task.id = null;
+        let subslot = Object.assign({}, $todolistStore.filter(obj => { return obj.id == event.detail.task_id})[0]);
+        subslot.slot_id = event.detail.slot_id;
+        subslot.task_id = subslot.id;
+        subslot.task_name = subslot.name;
+        subslot.id = null;
+        subslot.start_date = event.detail.start_date;
+        subslot.end_date = event.detail.end_date;
 
-        timesheetStore.addSubslot(task);
+        timesheetStore.addSubslot(subslot);
     };
 
     const handleSubslotChangeSize = (event) =>{
@@ -63,7 +63,6 @@
         const subslotIndex = $timesheetStore.Slots[slotIndex].Subslots.findIndex(subslot => subslot.id == event.detail.id);
 
         let subslot = $timesheetStore.Slots[slotIndex].Subslots[subslotIndex];
-
         timesheetStore.removeSubslot(subslot);
     }
 
@@ -73,9 +72,7 @@
         oneDate.setDate(oneDate.getDate() - daysCounter);
         
         date = dateToShortFormat(oneDate);
-        timesheetToday = getTimesheetTAPI(dateToShortFormat(oneDate))
-        timesheetToday = timesheetToday
-
+        getTimesheetTAPI(dateToShortFormat(oneDate))
         setTimesheetDaySettings(dateToShortFormat(oneDate));
     }
 
@@ -85,16 +82,13 @@
         oneDate.setDate(oneDate.getDate() - daysCounter);
         
         date = dateToShortFormat(oneDate);
-        timesheetToday = getTimesheetTAPI(dateToShortFormat(oneDate))
-        timesheetToday = timesheetToday
-        
+        getTimesheetTAPI(dateToShortFormat(oneDate))
         setTimesheetDaySettings(dateToShortFormat(oneDate));
     }
 
     const handleTodayButton = () => {
         const date=dateToShortFormat(getTodayDate());
         timesheetToday = getTimesheetTAPI(date);
-        
         setTimesheetDaySettings(dateToShortFormat(oneDate));
     }
 
@@ -155,7 +149,6 @@
         .then(data => data.json())
         .then(timesheet => {
             timesheetStore.setFromFrontend(timesheet);
-            // ppm_synced = timesheet.ppm_synced == 1 ? false : true;
             return timesheet;
         })
         .catch(error => console.log('error', error));
@@ -177,15 +170,16 @@
             body: JSON.stringify(timesheet)
         };
 
-        ppm_syncing = true;
-        const res = fetch(url, requestOptions)
+        $timesheetStore.ppm_syncing = true;
+        fetch(url, requestOptions)
         .then(response => {
-            ppm_syncing = false;
+            $timesheetStore.ppm_syncing = false;
+            $timesheetStore.ppm_synced = true;
             return response;
         })
         .catch((e) => {
-            ppm_sync_error = true;
-            ppm_syncing = false;
+            $timesheetStore.ppm_sync_error = true;
+            $timesheetStore.ppm_syncing = false;
         });
     }
 
@@ -198,24 +192,18 @@
             </div>
             <div class="titlebox">
                 <div class="sendButton">
-                    {#await $timesheetStore}
-                        <div class="loader" />  
-                    {:then timesheetStore}
-                        {#if !ppm_syncing && ppm_sync_error}
-                            <Button on:click={() => submitTimesheet()} icon="cloud_upload" light flat text color='error'/>
-                        {:else if !ppm_syncing && timesheetStore.ppm_synced == 1 && timesheetStore.ppm_last_sync || ppm_synced}
-                            <Button on:click={() => submitTimesheet()} icon="cloud_upload" light flat text color='success'/>
-                        {:else if !ppm_syncing && timesheetStore.ppm_synced == 1 && !timesheetStore.ppm_last_sync}
-                            <Button on:click={() => submitTimesheet()} icon="cloud_upload" light flat text color='alert'/>
-                        {:else if ppm_syncing}
-                            <div class="loader" />
-                        {:else}
-                            <Button on:click={() => submitTimesheet()} icon="cloud_upload" light flat text color='gray'/>
-                        {/if}
-                    {:catch error}
+                    {#if !$timesheetStore.ppm_syncing && $timesheetStore.ppm_sync_error}
+                        <Button on:click={() => submitTimesheet()} icon="cloud_upload" light flat text color='error'/>
+                    {:else if !$timesheetStore.ppm_syncing && $timesheetStore.ppm_synced == 1}
+                        <Button on:click={() => submitTimesheet()} icon="cloud_upload" light flat text color='success'/>
+                    {:else if !$timesheetStore.ppm_syncing && $timesheetStore.ppm_synced != 1 && !$timesheetStore.ppm_sync_error}
+                        <Button on:click={() => submitTimesheet()} icon="cloud_upload" light flat text color='alert'/>
+                    {:else if $timesheetStore.ppm_syncing}
+                        <div class="loader" />
+                    {:else}
                         <Button on:click={() => submitTimesheet()} icon="cloud_upload" light flat text color='gray'/>
-                    {/await}	
-                    </div>
+                    {/if}
+                </div>
                 <div class="titleWrapper">
                     <div class="title">
                         <h5>{timesheetTitle}</h5>

@@ -4,7 +4,8 @@
 	import RemoveTask from "./RemoveTask.svelte";
     import Button from "smelte/src/components/Button";
     import ContentLoader from 'svelte-content-loader';   
-	
+	import { fade } from 'svelte/transition';
+
 	import { todolistStore } from "./stores.js";
 
 
@@ -135,7 +136,7 @@
 		</div>
 	</div>
 	{#if showInactives}
-		<div class="tasks">
+		<div class="tasks" transition:fade="{{delay: 150, duration: 500}}">
 			<div class="todolist-task-inactive">
 				{#await projectsMenu}
 					<div/>

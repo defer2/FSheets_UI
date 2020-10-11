@@ -4,6 +4,8 @@
 	const dispatch = createEventDispatcher();
 	import Navigation from "./Navigation.svelte";
 
+	export let API_TIMESHEETS_URL;
+
 	let showNav = false;
 	let menuProjectTimer;
 	
@@ -40,7 +42,7 @@
 </div>	
 <aside on:mouseout={handleNavClose} on:mouseover={handleNavOpen}>
 	{#if showNav}
-		<Navigation on:handleMenu={handleMenu} showNav={true} showNavMobile={true} elevation="{true}" persistent="{false}" right="{true}" ></Navigation>   
+		<Navigation {API_TIMESHEETS_URL} on:handleMenu={handleMenu} showNav={true} showNavMobile={true} elevation="{true}" persistent="{false}" right="{true}" ></Navigation>   
 	{/if}
 </aside>
 

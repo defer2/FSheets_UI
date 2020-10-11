@@ -39,6 +39,14 @@
 
 	configuration = getSettingsTAPI();
 
+	configuration.then(configuration => {
+		if(!configuration.API_TIMESHEETS_URL){
+			showHome = false;
+			showProjects = false;
+			showExtendedView = false;
+			showSettings = true;
+		}
+	});
 </script>
 
 <svelte:head>
@@ -51,7 +59,7 @@
 	<div/>
 {:then configuration}
 	<header>
-		<Header on:handleMenu={handleMenu} />
+		<Header on:handleMenu={handleMenu} {...configuration}/>
 		<Alert />
 	</header>
 	<main>

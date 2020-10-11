@@ -30,12 +30,12 @@ mkdir -p sheets/settings
 ```bash
 cd sheets
 
-https://github.com/defer2/FSheets_UI.git ui
-https://github.com/defer2/FSheets_TimesheetsMS.git timesheets
-https://github.com/defer2/FSheets_TasksMS.git tasks
-https://github.com/defer2/FSheets_ProjectsMS.git projects
-https://github.com/defer2/FSheets_ClarityPPMIntegrationMS.git clarityppm
-https://github.com/defer2/FSheets_SettingsMS.git settings
+git clone https://github.com/defer2/FSheets_UI.git ui
+git clone https://github.com/defer2/FSheets_TimesheetsMS.git timesheets
+git clone https://github.com/defer2/FSheets_TasksMS.git tasks
+git clone https://github.com/defer2/FSheets_ProjectsMS.git projects
+git clone https://github.com/defer2/FSheets_ClarityPPMIntegrationMS.git clarityppm
+git clone https://github.com/defer2/FSheets_SettingsMS.git settings
 ```
 
 #### Modify settings files

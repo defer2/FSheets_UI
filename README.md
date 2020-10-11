@@ -51,7 +51,7 @@ export default{
 [PPM]
 USERNAME= <ppm_username>
 PASSWORD= <ppm_password>
-URL= http://<ppm_host>:<ppm_port?/ppm/rest/v1/
+URL= http://<ppm_host>:<ppm_port>/ppm/rest/v1/
 
 [FTIMESHEETS]
 API_TIMESHEETS_URL= http://<Timesheets MS host>:<Timesheets MS port>
@@ -61,6 +61,20 @@ API_CLARITYPPM_URL= http://<ClarityPPMIntegration MS host>:<ClarityPPMIntegratio
 ```
 
 ###### sheets/clarityppm/conf/config.ini
+```ini
+[PPM]
+USERNAME= <ppm_username>
+PASSWORD= <ppm_password>
+URL= http://<ppm_host>:<ppm_port>/ppm/rest/v1/
+
+[FTIMESHEETS]
+API_TIMESHEETS_URL= http://<Timesheets MS host>:<Timesheets MS port>
+API_TASKS_URL= http://<Tasks MS host>:<Tasks MS port>
+API_PROJECTS_URL= http://<Projects MS host>:<Projects MS port>
+API_CLARITYPPM_URL= http://<ClarityPPMIntegration MS host>:<ClarityPPMIntegration MS port>
+```
+
+###### sheets/timesheets/conf/config.ini
 ```ini
 [PPM]
 USERNAME= <ppm_username>

@@ -65,7 +65,7 @@ API_CLARITYPPM_URL= http://<ClarityPPMIntegration MS host>:<ClarityPPMIntegratio
 [PPM]
 USERNAME= <ppm_username>
 PASSWORD= <ppm_password>
-URL= http://<ppm_host>:<ppm_port?/ppm/rest/v1/
+URL= http://<ppm_host>:<ppm_port>/ppm/rest/v1/
 
 [FTIMESHEETS]
 API_TIMESHEETS_URL= http://<Timesheets MS host>:<Timesheets MS port>

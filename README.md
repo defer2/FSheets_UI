@@ -58,13 +58,13 @@ export default{
 API_SETTINGS_URL= http://<Settings MS host>:<Settings MS port>
 ```
 
-###### sheets/tasks/conf/config.ini
+###### sheets/timesheets/conf/config.ini
 ```ini
 [FTIMESHEETS]
 API_SETTINGS_URL= http://<Settings MS host>:<Settings MS port>
 ```
 
-###### sheets/tasks/conf/config.ini
+###### sheets/clarityppm/conf/config.ini
 ```ini
 [FTIMESHEETS]
 API_SETTINGS_URL= http://<Settings MS host>:<Settings MS port>

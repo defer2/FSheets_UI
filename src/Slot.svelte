@@ -26,8 +26,7 @@
         event.preventDefault();
         if(!slotId) return;
             
-        const draggingElement = document.getElementById(event.dataTransfer.getData('text'));
-        const taskId = draggingElement.dataset.id;
+        const taskId = event.dataTransfer.getData('text');
 
         let subslot = subslotAlreadyExists(slotId, taskId);
         if(subslot){
@@ -185,7 +184,6 @@
         text-align: left;
         min-height: 40px;
         border-bottom: 0.12em rgb(224, 224, 224) solid;
-        width:100%;
 	}
 
 
@@ -194,6 +192,7 @@
         justify-content: center;
         align-items: center;
     }
+
 </style>
 
 <div>

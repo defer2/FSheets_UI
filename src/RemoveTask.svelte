@@ -6,17 +6,8 @@
 	function onDrop(event) {
         event.preventDefault();
 
-        const id = event.dataTransfer.getData('text');
-        const taskElement = document.getElementById(id);
-
-        const taskName = taskElement.dataset.name;
-        const taskId = taskElement.dataset.id;
-        const taskColor = taskElement.dataset.color;
-
         dispatch('taskRemoved', {
-            taskId: taskId,
-            taskName: taskName,
-            taskColor: taskColor
+            task_id: event.dataTransfer.getData('text')
 		});
     }
 </script>

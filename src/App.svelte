@@ -5,6 +5,7 @@
 	import Header from "./Header.svelte";	
 	import TimesheetsExtendedView from "./TimesheetsExtendedView.svelte";
 	import Settings from "./Settings.svelte";
+	import Alert from './Alert.svelte'
 
 	export let configuration;
 
@@ -22,7 +23,6 @@
 			.then(data => data.json())
 			.then(settings => {
 				settings[0].API_SETTINGS_URL = api_old;
-				console.log(settings);
 				return settings;
             })
             .catch(error => console.log('error', error));
@@ -52,6 +52,7 @@
 {:then configuration}
 	<header>
 		<Header on:handleMenu={handleMenu} />
+		<Alert />
 	</header>
 	<main>
 		{#if showProjects}
@@ -81,13 +82,16 @@
 		</content>
 		{/if}
 	</main>
-	<footer></footer>
+	<footer>
+		
+	</footer>
 {/await}
 
 
 <style>
 	:global(body) { 
 		background-color: #f3f0f0;
+		scrollbar-width: none;
 	}
 	content {
 		display: grid;

@@ -1,19 +1,30 @@
 <script>
   	import * as Smelte from 'smelte'
-
 	import { createEventDispatcher } from 'svelte'
+    import { alertstore } from './alert.js'
+
+
 	const dispatch = createEventDispatcher();
 	let taskName;
 
 	const addTask = () => {	
         const taskElement = document.getElementById('txtTaskname');
 
-        dispatch('taskAdded', {
-            taskName: taskName
-		});
+		if(!taskName || (taskName && taskName.trim() == "")){
+			alertstore.error('not without a name...');
+			taskElement.focus();
+		}else{
 
-		taskElement.value = '';
-		taskElement.placeholder = 'add a new task';
+			console.log(taskName);
+			dispatch('taskAdded', {
+				name: taskName
+			});
+
+
+			taskName = null;
+			taskElement.placeholder = 'add a new task';
+			taskElement.focus();
+		}
 	};
 
 	const checkIfEnter = (evt) => {
@@ -21,7 +32,7 @@
 			if (e.key === 'Enter' || e.keyCode === 13) {
 				document.getElementById('btn-create-task').click();
 			}else if (e.key === 'Backspace' || e.key === 'Delete' || e.keyCode === 46 || e.keyCode === 8) {
-				delay = setTimeout(deleteWholeWord, longpress);
+				delay = setTimeout(deleteWholeWord, 500);
 				
 				function deleteWholeWord(){
 					let str=evt.target.value;

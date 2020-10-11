@@ -23,6 +23,7 @@
   },
   "dependencies": {
     "@material-ui/styles": "^4.10.0",
+    "@sveltejs/svelte-scroller": "^2.0.6",
     "css-element-queries": "^1.2.3",
     "sirv-cli": "^1.0.0",
     "smelte": "^1.0.16",

@@ -1,6 +1,6 @@
 <script>
     import * as Smelte from 'smelte'
-    import { createEventDispatcher } from 'svelte';
+    import { createEventDispatcher, tick } from 'svelte';
     import { Select } from "smelte";
 
     export let taskName;
@@ -23,89 +23,70 @@
     
         if(projectId)
             dispatch('taskChanged', {
-                taskId: taskId,
-                taskProjectId: projectId,
-                taskName: taskName,
-                taskColor: projects[projectIndex].color,
-                taskStatus: taskStatus,
-                taskDescription: ''
+                id: taskId,
+                project_id: projectId,
+                name: taskName,
+                color: projects[projectIndex].color,
+                status: taskStatus,
+                description: ''
             });
 
-        projectColor = projects[projectIndex].color;
-        
+        projectColor = projects[projectIndex].color;     
     };
 
     const dispatch = createEventDispatcher();
 
     const handleDragStart = (e) => {
-        e.dataTransfer.setData('text/plain', e.target.id);
-        dispatch('taskDragStart', {
-            taskId: taskId
-        }); 
+        e.dataTransfer.setData('text/plain', taskId);
+        dispatch('taskDragStart', {}); 
     };
 
-    const handleTaskEditable = (e) => {
+    const handleTaskEditable = async (e) => {
         taskEditable = !taskEditable;
         draggable = !taskEditable;
 
         try{
-            let buttonId=e.target.id;
-            let parentDivId=buttonId.replace('btn-edit-','').replace('txt-','');
-            let txtId=buttonId.replace('btn-edit-','txt-');
-            
-            let parentDiv = document.getElementById(parentDivId);      
+            await tick();
+            const parentDiv = document.getElementById('task-'+taskId);                  
+            const txtField = document.getElementById('txt-task-'+taskId);
+
             parentDiv.draggable=draggable;
-            
-            let txtField = document.getElementById(txtId);
-            
             if(taskEditable){
-                setTimeout(function() {
-                    if(txtField)
-                        txtField.focus();
-                }, 200);
+                setTimeout(() => { txtField && txtField.focus() }, 200);
             }else{
-                if(txtField)
-                    txtField.blur();
+                txtField && txtField.blur();
             }
         }catch(err){
 
         }
     };
 
-    const handleTaskDone = (e) => {
-        taskStatus < 3 ? taskStatus++ : taskStatus = 1;
-        
+    const handleTaskDone = () => {
+        taskStatus < 3 ? taskStatus++ : taskStatus = 1;      
+        handleTaskChanged();
+    };
+
+    const handleDragEnd = () => { dispatch('taskDragEnd', {}); };
+    
+    const handleTaskChanged = () => {
         try{
             dispatch('taskChanged', {
-                taskId: taskId,
-                taskProjectId: projectId,
-                taskName: taskName,
-                taskColor: projectColor,
-                taskStatus: taskStatus,
-                taskDescription: ''
+                id: taskId,
+                project_id: projectId,
+                name: taskName,
+                color: projectColor,
+                status: taskStatus,
+                description: ''
             });
         }catch(error){
             console.log('error', error);
         }
     };
 
-    const handleDragEnd = () => { dispatch('taskDragEnd', {}); };
-    
-    const handleTaskChanged = (e) => {
-        dispatch('taskChanged', {
-            taskId: taskId,
-            taskProjectId: projectId,
-            taskName: taskName,
-            taskColor: projectColor,
-            taskStatus: taskStatus,
-            taskDescription: ''
-        });
-    };
-
     const handleEnter = (evt) => {
         evt.target.addEventListener('keyup',(e)=>{
             if (e.key === 'Enter' || e.keyCode === 13) {
-                handleTaskChanged(evt);
+                handleTaskChanged();
             }
         });
 
@@ -117,20 +98,18 @@
     <div class="checkbox">
         {#if taskStatus==1}
             <Smelte.Button id="chk-done-task-{taskId}" color='gray' text  small icon='done'
-                    on:click="{handleTaskDone}" />
+                on:click="{handleTaskDone}" />
         {:else if taskStatus==2}
             <Smelte.Button  id="chk-done-task-{taskId}" color='gray' text  small icon='remove_circle_outline'
-            on:click="{handleTaskDone}" />
+                on:click="{handleTaskDone}" />
         {:else}
             <Smelte.Button  id="chk-done-task-{taskId}" color='gray' text  small icon='undo'
-            on:click="{handleTaskDone}" />
+                on:click="{handleTaskDone}" />
         {/if}
     </div>
    
     <!-- Tarea -->
-    <div id="task-{taskId}" class="task" draggable="true" data-projectId="{projectId}"
-            data-id="{taskId}" data-status={taskStatus} data-description={taskDescription} data-color="{projectColor}" data-name="{taskName}" 
-            on:dragstart={handleDragStart} on:dragend={handleDragEnd} >
+    <div id="task-{taskId}" class="task" draggable="true" on:dragstart={handleDragStart} on:dragend={handleDragEnd} >
             <!-- Texto -->
         {#if taskStatus==2}
             <div ondrop="return false;" style='text-decoration:line-through;color:gray;'>
@@ -145,12 +124,8 @@
 
      <!-- Propiedades -->
      <div class="taskControls" id="taskControls">
-        <div class="editButton">
-            <Smelte.Button  id="btn-edit-task-{taskId}" class="editButton" color='gray' text  small icon='edit'
+        <Smelte.Button id="btn-edit-task-{taskId}" class="editButton" color='gray' text small icon='edit'
                 on:click="{handleTaskEditable}" />
-        </div>
-        <div class="deleteButton"/>
-        <div class="properties"/>    
     </div>
 
      <!-- Color -->
@@ -160,16 +135,13 @@
 <!-- {#if true} -->
 {#if taskEditable}
     <div class="edit-task-name">
-        <Smelte.TextField label="Task name" id="txt-task-{taskId}" style='background-color:white;' 
-        on:focus={handleEnter} size="60" on:blur="{() => handleTaskChanged()}"
-        bind:value={taskName} data-projectId="{projectId}" data-name="{taskName}" data-id="{taskId}" data-status={taskStatus} data-description={taskDescription}  data-color="{projectColor}"/>
+        <Smelte.TextField label="Task name" id="txt-task-{taskId}" bind:value={taskName} style='background-color:white;' 
+            on:focus={handleEnter} size="60" on:blur="{() => handleTaskChanged()}" />
     </div>
     <div class="edit-task-name">
         <small class="edit-project-color text-xs">Project name</small>        
-        <Select bind:value={projectId} label={projectName} items={projects}
-            forceBgColorWhite forceTextColorBlack
-            on:change="{() => handleTaskChangeProject()}" >            
-        </Select>
+        <Select bind:value={projectId} label={projectName} items={projects} forceBgColorWhite forceTextColorBlack
+            on:change="{() => handleTaskChangeProject()}" />            
     </div>    
 {/if}
 
@@ -185,29 +157,15 @@
 
     .taskControls{
         display: grid;
-        grid-template-columns: 1fr 1fr 1fr;
+        grid-template-columns: 1fr;
         justify-content: center;
         align-items: center;
-        margin-right: 15px;
-    }
-
-    .properties{
-        margin-left: 5px;
-        display: flex;
-        justify-content: left;
-        align-items: center;
+        margin-left: 30px
     }
 
     .checkbox{
         display: flex;
         margin-left: 10px;
-        justify-content: center;
-        align-items: center;
-    }
-
-    .editButton{
-        margin-left: 5px;
-        display: flex;
         justify-content: center;
         align-items: center;
     }
@@ -219,10 +177,10 @@
     }
 
     .projectColor{
-        margin-left: 2px;
+        margin-left: 17px;
         width: 3px;
+        z-index: 50;
     }
-
 
     .edit-project-color{
         width: 80%;

@@ -11,9 +11,6 @@
 	export let API_CLARITYPPM_URL;	
     export let PPM_USERNAME;	
 
-    console.log('RESOURCE_NAME');
-    console.log(PPM_USERNAME);
-
     let daysCounter = 0;
     let past = false;
     let tooPast = false;
@@ -25,7 +22,8 @@
     let date=dateToShortFormat(getTodayDate());
     setTimesheetDaySettings(date);
     getTimesheetTAPI(date)
-    
+  
+
    
     /* HANDLE functions*/
 
@@ -139,7 +137,7 @@
     }
 
       /* API functions*/
-      async function getTimesheetTAPI(date){ 
+    async function getTimesheetTAPI(date){ 
         let url = API_TIMESHEETS_URL+'/timesheets/dates';        
         const dateParameter = 'date='+date;
         url = url+'?'+dateParameter;
@@ -174,7 +172,7 @@
         fetch(url, requestOptions)
         .then(response => {
             $timesheetStore.ppm_syncing = false;
-            $timesheetStore.ppm_synced = true;
+            $timesheetStore.ppm_synced = 2;
             return response;
         })
         .catch((e) => {
@@ -194,9 +192,9 @@
                 <div class="sendButton">
                     {#if !$timesheetStore.ppm_syncing && $timesheetStore.ppm_sync_error}
                         <Button on:click={() => submitTimesheet()} icon="cloud_upload" light flat text color='error'/>
-                    {:else if !$timesheetStore.ppm_syncing && $timesheetStore.ppm_synced == 1}
+                    {:else if !$timesheetStore.ppm_syncing && $timesheetStore.ppm_synced == 2}
                         <Button on:click={() => submitTimesheet()} icon="cloud_upload" light flat text color='success'/>
-                    {:else if !$timesheetStore.ppm_syncing && $timesheetStore.ppm_synced != 1 && !$timesheetStore.ppm_sync_error}
+                    {:else if !$timesheetStore.ppm_syncing && $timesheetStore.ppm_synced == 1 && !$timesheetStore.ppm_sync_error}
                         <Button on:click={() => submitTimesheet()} icon="cloud_upload" light flat text color='alert'/>
                     {:else if $timesheetStore.ppm_syncing}
                         <div class="loader" />
@@ -278,19 +276,25 @@
     }
     .container{
         box-shadow: 2px 2px 8px  rgba(0,0,0,0.1);
+        width: 100%;
+		overflow: hidden;
     }
 
 	.timesheet-header {
         display: grid;
         grid-template-columns: 20% 60% 10% 10%;
 		border-radius: 2px;
-        height: 90px;
+        height: 100px;
         align-items: center;
         justify-items: center;
 	}
 
     .slots{
-        background-color:white;
+        width: 100%;
+		overflow-y: scroll;
+		padding-right: 17px; /* Increase/decrease this value for cross-browser compatibility */
+		box-sizing: content-box; /* So the width will be 100% + 17px */        background-color:white;
+        max-height: calc(100vh - 230px);
     }
 
     .ayer {

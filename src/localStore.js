@@ -1,5 +1,7 @@
 import { writable } from 'svelte/store';
 import config from '../conf/configuration.js'
+import {alertstore} from './alert.js'
+
 
 let configuration = {...config};
 
@@ -64,6 +66,7 @@ export const localStore = (key, initial) => {
   }
 }
 
+
 export const localStoreTodolist = (key, initial) => {                
 
   const toString = (value) => JSON.stringify(value, null, 2);
@@ -76,23 +79,24 @@ export const localStoreTodolist = (key, initial) => {
   let saved = toObj(localStorage.getItem(key));      
   const store = writable(saved);
 
-  function addTask(value) {
+  function addTask(task) {
     saved = toObj(localStorage.getItem(key));
-    saved.push({name: value});
+    saved.push(task);
+    console.log(task);
+
 
     setFromFrontend(saved);
-    createTaskTAPI(value);
+    createTaskTAPI(task);
   }
 
-  function removeTask(value) {
+  function removeTask(task) {
     saved = toObj(localStorage.getItem(key));
 
-    const taskIndex = saved.findIndex(task => task.id == value);
-    const removedTask = saved[taskIndex];
+    const taskIndex = saved.findIndex(t => t.id == task.id);
     saved.splice(taskIndex, 1);
 
     setFromFrontend(saved);
-    deleteTasksTAPI(value, removedTask);
+    deleteTasksTAPI(task);
   }
 
   function updateTask(newTask) {
@@ -101,8 +105,8 @@ export const localStoreTodolist = (key, initial) => {
     const taskIndex = saved.findIndex(task => task.id == newTask.id);
     const prevTask = toString(saved[taskIndex]);
     saved[taskIndex] = newTask;
-    setFromFrontend(saved);
 
+    setFromFrontend(saved);
     updateTaskTAPI(newTask, prevTask);
   }
 
@@ -112,7 +116,7 @@ export const localStoreTodolist = (key, initial) => {
       let parameterName='name='+task.name;
       let parameterStatus='status='+task.status;
       let parameterDescription='description='+task.description;
-      let parameterProjectId='project_id='+task.projectId;
+      let parameterProjectId='project_id='+task.project_id;
 
       url = url+'?'+parameterName+'&'+parameterStatus+'&'+parameterDescription+'&'+parameterProjectId;
 
@@ -121,53 +125,59 @@ export const localStoreTodolist = (key, initial) => {
         redirect: 'follow',
       };
 
+      const taskIndex = saved.findIndex(taskf => taskf.id == task.id);
+
       fetch(url, requestOptions)
         .then(response => response.json())
         .then(data => data[0])
         .then(newTask => {
-          const taskIndex = saved.findIndex(taskf => taskf.id == task.id);
           saved[taskIndex] = newTask;
           setFromBackend(saved);
+          alertstore.message('Task updated successfully');
         })        
         .catch(error => {
           console.log('error updating task to backend', error);
-          const taskIndex = saved.findIndex(taskf => taskf.id == prevTask.id);
           saved[taskIndex] = prevTask;
           setFromBackend(saved);
+          alertstore.error('Ups there was an error...');
         });
 	  });
 	}
 
-  async function createTaskTAPI(taskName){
+  async function createTaskTAPI(task){
     configuration.then(configuration => {
-      let url = configuration.API_TASKS_URL+'/create?name='+taskName;
+      let url = configuration.API_TASKS_URL+'/create?name='+task.name;
 
       var requestOptions = {
         method: 'POST',
         redirect: 'follow'
       };
 
+      const taskIndex = saved.findIndex(t => t.name == task.name);
+      console.log(task);
+
       fetch(url, requestOptions)
         .then(response => response.json())
         .then(data => data[0])
         .then(newTask => {
-          const taskIndex = saved.findIndex(task => task.name == taskName);
+          console.log(newTask);
+
           saved[taskIndex] = newTask;
           setFromBackend(saved);
+          alertstore.message('Task added successfully');
         })
         .catch(error => {
           console.log('error adding task to backend', error);
-          const taskIndex = saved.findIndex(task => task.name == taskName);
           saved.splice(taskIndex, 1);
           setFromBackend(saved);
-        }
-          );
+          alertstore.error('Ups there was an error...');
+        });
     });
   }
 
-  async function deleteTasksTAPI(taskId, removedTask){
+  async function deleteTasksTAPI(task){
     configuration.then(configuration => {
-      let url = configuration.API_TASKS_URL+'/delete/'+taskId;
+      let url = configuration.API_TASKS_URL+'/delete/'+task.id;
 
       var requestOptions = {
         method: 'DELETE',
@@ -175,11 +185,14 @@ export const localStoreTodolist = (key, initial) => {
       };
 
       fetch(url, requestOptions)
-        .then(response => response)
+        .then(() => {
+          alertstore.message('Task deleted successfully');
+        })
         .catch(error => {
           console.log('error deleting task from backend', error);
-          saved.push(removedTask);
+          saved.push(task);
           setFromBackend(saved);
+          alertstore.error('Ups there was an error...');
         });
     });
   }
@@ -274,7 +287,7 @@ export const localStoreTimesheet = (key, initial) => {
     .then(response => response.json())
     .then(data => data[0])
     .then(() => {
-      saved.ppm_synced = 0;
+      saved.ppm_synced = 1;
       setFromBackend(saved);
     })        
     .catch(error => {
@@ -302,7 +315,7 @@ export const localStoreTimesheet = (key, initial) => {
       fetch(url, requestOptions)
         .then(response => response)
         .then(() => {
-          saved.ppm_synced = 0;
+          saved.ppm_synced = 1;
           setFromBackend(saved);
         }) 
         .catch(error => {
@@ -339,7 +352,7 @@ export const localStoreTimesheet = (key, initial) => {
           const subslotIndex = saved.Slots[slotIndex].Subslots.findIndex(subslot => subslot.task_id == task.task_id);
 
           saved.Slots[slotIndex].Subslots[subslotIndex].id = newSubslot.id;
-          saved.ppm_synced = 0;
+          saved.ppm_synced = 1;
 
           setFromBackend(saved);
         })

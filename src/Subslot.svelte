@@ -2,8 +2,7 @@
     import Button from "smelte/src/components/Button";
     import { createEventDispatcher } from 'svelte'
     import { watchResize } from "svelte-watch-resize";
-	import { slide } from 'svelte/transition';
-    import { quintOut } from 'svelte/easing';
+
     
     export let subslotName;
     export let subslotId;
@@ -57,12 +56,10 @@
         display: grid;
         grid-template-columns: 84% 15% 1%;
         align-items: center;
-        position: relative;
         border-top: 0.1em rgb(224, 224, 224) dashed;
         min-height: 35px;
         max-height: 160px;
         margin-top: -0.05em; 
-        position: relative;
     }
 
     .subslot{
@@ -71,7 +68,6 @@
         align-items: center;
         height: 100%;
         width: 84%;
-        position: absolute;
     }
 
     .subslotControls{
@@ -80,16 +76,17 @@
         align-items: center;
         height: 100%;
         width: 15%;
-        position: absolute;
         right: 0;
 
     }
 
     .projectColor{
+        margin-top: 5px;
         width: 3px;
-        position: absolute;
-        right: 0;
-        height: 100%;
+        height: calc(100% + 2px);
+        margin-left: 17px;
+        width: 3px;
+        z-index: 50;
     }
 
     .resize{
@@ -105,7 +102,7 @@
     data-subslotId="{subslotId}" data-slotId="{slotId}" data-taskId="{taskId}" 
     data-name="{subslotName}" data-project="{JSON.stringify(project)}" data-color="{project.color}"
     data-height="{subslotHeight}" style="height: {subslotHeight}px;" 
-    on:mouseover="{() => handleResizeOption()}" on:mouseout="{() => handleResizeOption()}" use:watchResize="{(node) => handleResize(node)}" transition:slide="{{delay: 150, duration: 500, easing: quintOut }}">
+    on:mouseover="{() => handleResizeOption()}" on:mouseout="{() => handleResizeOption()}" use:watchResize="{(node) => handleResize(node)}">
 
     <!-- Tarea -->   
     <div id="subslot-{subslotId}" class="subslot" data-name="{subslotName}" data-slotId="{slotId}" 

@@ -15,7 +15,6 @@
 			taskElement.focus();
 		}else{
 
-			console.log(taskName);
 			dispatch('taskAdded', {
 				name: taskName
 			});

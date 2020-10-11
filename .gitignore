@@ -1,6 +1,4 @@
-/conf/configuration.js
 /public/build/
 .vscode
 
 .DS_Store
-node_modules

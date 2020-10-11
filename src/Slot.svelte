@@ -30,7 +30,6 @@
 
         let subslot = subslotAlreadyExists(slotId, taskId);
         if(subslot){
-            console.log('subslotAlreadyExists');
 
             const subslots = subslotsChangeSize(subslot);
             if (subslots){ //there is more than one subslot in slot
@@ -72,15 +71,12 @@
     };
 
     const subslotsChangeSize = (subslot) => {
-        console.log('subslotsChangeSize');
         const slotId = subslot.slot_id;
         const slotIndex = $timesheetStore.Slots.findIndex(slot => slot.id == slotId);
         const subslots = $timesheetStore.Slots[slotIndex].Subslots;
 
         if (subslots.length === 1) return;
         
-        console.log('modifying subslot height');
-
         let totalHeight = 0;
         subslots.forEach(function(tsubslot) {
             const height = (() => {

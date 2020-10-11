@@ -3,9 +3,7 @@
 	import CreateTask from "./CreateTask.svelte";	
 	import RemoveTask from "./RemoveTask.svelte";
     import Button from "smelte/src/components/Button";
-	import { fade } from 'svelte/transition';
 	import { todolistStore } from "./stores.js";
-	import Scroller from '@sveltejs/svelte-scroller';
 
 
 	export let API_PROJECTS_URL;
@@ -24,7 +22,6 @@
 	
 
 	const handleTaskAdded = (event) =>{
-		console.log(event.detail.name);
 		todolistStore.addTask({name: event.detail.name});
 	};
 

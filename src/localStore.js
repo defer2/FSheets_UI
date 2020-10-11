@@ -82,7 +82,6 @@ export const localStoreTodolist = (key, initial) => {
   function addTask(task) {
     saved = toObj(localStorage.getItem(key));
     saved.push(task);
-    console.log(task);
 
 
     setFromFrontend(saved);
@@ -154,13 +153,11 @@ export const localStoreTodolist = (key, initial) => {
       };
 
       const taskIndex = saved.findIndex(t => t.name == task.name);
-      console.log(task);
 
       fetch(url, requestOptions)
         .then(response => response.json())
         .then(data => data[0])
         .then(newTask => {
-          console.log(newTask);
 
           saved[taskIndex] = newTask;
           setFromBackend(saved);
